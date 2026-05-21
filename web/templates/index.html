@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Iowa Property Tax Comp Engine</title>
+<meta name="viewport" content="width=1280" />
+<meta name="description" content="Iowa Property Tax Comp Engine · Polk + Dallas counties" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">▦</span>
+    <div class="brand-text">
+      <div class="brand-title">Iowa Property Tax Comp Engine</div>
+      <div class="brand-sub">v1.5 · Polk + Dallas counties</div>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs" aria-label="Screens">
+    <button data-tab="search" class="tab is-active">Search</button>
+    <button data-tab="parcel" class="tab">Parcel</button>
+    <button data-tab="comps"  class="tab">Comps</button>
+    <button data-tab="admin"  class="tab">Admin</button>
+    <button data-tab="packet" class="tab">Packet</button>
+  </nav>
+  <div class="topbar-right">
+    <span class="pill good" id="sync-pill"><span class="dot"></span>Live</span>
+    <span class="user-chip"><span class="avatar">IA</span>Local</span>
+  </div>
+</header>
+
+<main id="main">
+  <section class="screen is-active" data-screen="search"  data-screen-label="01 Search"></section>
+  <section class="screen"           data-screen="parcel"  data-screen-label="02 Parcel"></section>
+  <section class="screen"           data-screen="comps"   data-screen-label="03 Comps"></section>
+  <section class="screen"           data-screen="admin"   data-screen-label="04 Admin"></section>
+  <section class="screen"           data-screen="packet"  data-screen-label="05 PDF Packet"></section>
+</main>
+
+<aside id="tweaks" class="tweaks" hidden>
+  <header class="tweaks-head">
+    <strong>Tweaks</strong>
+    <button id="tweaks-close" aria-label="Close tweaks">×</button>
+  </header>
+  <div class="tweaks-body">
+    <fieldset>
+      <legend>Conclusion state (comp page)</legend>
+      <label><input type="radio" name="conclusion" value="over" checked /> Likely over-assessed</label>
+      <label><input type="radio" name="conclusion" value="fair" /> Roughly fair</label>
+      <label><input type="radio" name="conclusion" value="under" /> Likely under-assessed</label>
+    </fieldset>
+    <fieldset>
+      <legend>Data freshness banner</legend>
+      <label><input type="radio" name="freshness" value="fresh" checked /> Fresh (&lt;30 days)</label>
+      <label><input type="radio" name="freshness" value="stale" /> Stale (warning)</label>
+    </fieldset>
+    <fieldset>
+      <legend>Vanguard migration notice</legend>
+      <label><input type="checkbox" id="tw-vanguard" checked /> Show notice</label>
+    </fieldset>
+    <fieldset>
+      <legend>Subject row highlight</legend>
+      <label><input type="radio" name="subject" value="filled"   checked /> Filled band</label>
+      <label><input type="radio" name="subject" value="bordered"         /> Heavy border</label>
+      <label><input type="radio" name="subject" value="leftbar"          /> Left bar accent</label>
+    </fieldset>
+    <fieldset>
+      <legend>Map placement (comp page)</legend>
+      <label><input type="radio" name="mapPos" value="split"  checked /> Split (map + table side-by-side)</label>
+      <label><input type="radio" name="mapPos" value="header"          /> Header strip across top</label>
+      <label><input type="radio" name="mapPos" value="hidden"          /> Hidden (table only)</label>
+    </fieldset>
+    <fieldset>
+      <legend>Mobile preview</legend>
+      <label><input type="checkbox" id="tw-mobile" /> Collapse comp page to mobile width</label>
+    </fieldset>
+  </div>
+</aside>
+
+<footer class="page-foot">
+  <span>Informational only. Not legal or tax advice.</span>
+  <span class="muted">Iowa Property Tax Comp Engine · Polk &amp; Dallas Boards of Review · April 2–30 protest window</span>
+</footer>
+
+<script src="/static/screens.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

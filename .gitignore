@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Environment / secrets
+.env
+*.env
+dallas/.env
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Flask
+instance/
+*.sqlite
+
+# Data files (large CSVs — don't commit raw county data)
+polk/data/
+dallas/data/
+*.csv
+*.ndjson
+*.zip
+
+# Logs
+*.log
+
+# Test artifacts
+.pytest_cache/
+htmlcov/
+.coverage
