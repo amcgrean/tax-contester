@@ -59,15 +59,24 @@ function renderSearch(host) {
       <h1>Look up a parcel <em>in Polk or Dallas County</em>, then build a comp set in under a minute.</h1>
       <p class="lede">Enter an address or parcel ID. We'll pull the latest assessment from the county's CAMA system and propose comparable sales within 0.75 mi.</p>
 
-      <form class="search-box" id="search-form" onsubmit="return false;">
+      <form class="search-box" id="search-form" onsubmit="return false;" style="position:relative">
         <select id="county-select" aria-label="County">
           <option value="both">Both counties</option>
           <option value="polk">Polk County</option>
           <option value="dallas">Dallas County</option>
         </select>
-        <input id="search-input" type="text"
-               placeholder="e.g. 4823 Grand Ave, Des Moines  ·  or  ·  010-12345-678-000"
-               autocomplete="off" />
+        <div style="position:relative;flex:1;display:flex">
+          <input id="search-input" type="text"
+                 placeholder="e.g. 4823 Grand Ave, Des Moines  ·  or  ·  010-12345-678-000"
+                 autocomplete="off" style="flex:1" />
+          <ul id="ac-dropdown" role="listbox" style="
+            display:none; position:absolute; top:100%; left:0; right:0; z-index:200;
+            background:var(--surface); border:1px solid var(--line-2);
+            border-radius:var(--r-md); box-shadow:0 6px 24px rgba(0,0,0,.12);
+            margin:3px 0 0; padding:4px 0; list-style:none; max-height:280px;
+            overflow-y:auto; font-size:13px;
+          "></ul>
+        </div>
         <button type="submit" class="go" id="search-btn">${ICONS.search} Search</button>
       </form>
 
@@ -137,6 +146,90 @@ function renderSearch(host) {
   const form = host.querySelector('#search-form');
   const input = host.querySelector('#search-input');
   const btn = host.querySelector('#search-btn');
+  const dropdown = host.querySelector('#ac-dropdown');
+
+  // ── Autocomplete typeahead ──────────────────────────────
+  let acTimer = null;
+  let acActive = -1; // keyboard-highlighted index
+
+  function closeDropdown() {
+    dropdown.style.display = 'none';
+    dropdown.innerHTML = '';
+    acActive = -1;
+  }
+
+  function renderDropdown(suggestions) {
+    if (!suggestions.length) { closeDropdown(); return; }
+    dropdown.innerHTML = suggestions.map((s, i) => `
+      <li role="option" data-idx="${i}" style="
+        padding:8px 14px; cursor:pointer; display:flex; align-items:baseline;
+        gap:8px; border-bottom:1px solid var(--line);
+      ">
+        <span style="flex:1; font-weight:500; color:var(--ink)">${s.address}, <span style="font-weight:400;color:var(--ink-3)">${s.city}</span></span>
+        <span style="font-family:var(--mono); font-size:11px; color:var(--ink-4)">${s.parcel_id}</span>
+      </li>
+    `).join('');
+    dropdown.style.display = 'block';
+
+    dropdown.querySelectorAll('li').forEach((li, i) => {
+      li.addEventListener('mouseenter', () => highlightItem(i));
+      li.addEventListener('mouseleave', () => highlightItem(-1));
+      li.addEventListener('mousedown', e => {
+        e.preventDefault(); // prevent blur before click
+        selectSuggestion(suggestions[i]);
+      });
+    });
+  }
+
+  function highlightItem(idx) {
+    acActive = idx;
+    dropdown.querySelectorAll('li').forEach((li, i) => {
+      li.style.background = i === idx ? 'var(--accent-tint)' : '';
+    });
+  }
+
+  function selectSuggestion(s) {
+    input.value = s.address + ', ' + s.city;
+    closeDropdown();
+    // Navigate directly to parcel
+    setState({ currentParcelId: s.parcel_id, parcelData: null, compsData: null });
+    window.__goto('parcel');
+  }
+
+  input.addEventListener('input', () => {
+    clearTimeout(acTimer);
+    const q = input.value.trim();
+    if (q.length < 2) { closeDropdown(); return; }
+    acTimer = setTimeout(async () => {
+      const county = host.querySelector('#county-select').value;
+      try {
+        const data = await apiFetch(`/api/autocomplete?q=${encodeURIComponent(q)}&county=${county}`);
+        renderDropdown(data.suggestions || []);
+      } catch { closeDropdown(); }
+    }, 180); // 180ms debounce
+  });
+
+  input.addEventListener('keydown', e => {
+    const items = dropdown.querySelectorAll('li');
+    if (!items.length) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      highlightItem(Math.min(acActive + 1, items.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      highlightItem(Math.max(acActive - 1, -1));
+    } else if (e.key === 'Enter' && acActive >= 0) {
+      e.preventDefault();
+      items[acActive].dispatchEvent(new MouseEvent('mousedown'));
+    } else if (e.key === 'Escape') {
+      closeDropdown();
+    }
+  });
+
+  input.addEventListener('blur', () => {
+    // Small delay so mousedown on a suggestion fires first
+    setTimeout(closeDropdown, 150);
+  });
 
   async function doSearch(q) {
     if (!q) return;

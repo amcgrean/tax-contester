@@ -98,6 +98,62 @@ def index():
 
 
 # ─────────────────────────────────────────────────────────────────
+# API: Autocomplete  (fast typeahead — debounced from frontend)
+# ─────────────────────────────────────────────────────────────────
+
+@app.route("/api/autocomplete")
+def api_autocomplete():
+    q = request.args.get("q", "").strip()
+    county = request.args.get("county", "both").lower()
+
+    if len(q) < 2:
+        return jsonify({"suggestions": []})
+
+    county_sql = ""
+    if county == "polk":
+        county_sql = "AND p.county = 'polk'"
+    elif county == "dallas":
+        county_sql = "AND p.county = 'dallas'"
+
+    # Parcel ID shortcut
+    clean = q.replace("-", "").replace(" ", "")
+    if clean.isdigit() and len(clean) >= 6:
+        rows = query(f"""
+            SELECT p.county_parcel_id, p.address_raw, p.city, p.county
+            FROM properties p
+            WHERE p.county_parcel_id ILIKE %s {county_sql}
+            LIMIT 8
+        """, (f"{q}%",))
+        return jsonify({"suggestions": [
+            {"label": f"{r['address_raw']} — {r['county_parcel_id']}",
+             "address": r["address_raw"], "city": r["city"],
+             "parcel_id": r["county_parcel_id"], "county": r["county"]}
+            for r in rows
+        ]})
+
+    # Fuzzy address match using pg_trgm similarity
+    # Split input into tokens so "42nd des moines" matches "808 42ND ST DES MOINES"
+    tokens = [t for t in q.upper().split() if t]
+    like = "%" + "%".join(tokens) + "%"
+
+    rows = query(f"""
+        SELECT p.county_parcel_id, p.address_raw, p.city, p.county,
+               similarity(upper(p.address_raw), %s) AS sim
+        FROM properties p
+        WHERE upper(p.address_raw) ILIKE %s {county_sql}
+        ORDER BY sim DESC, p.address_raw
+        LIMIT 8
+    """, (q.upper(), like))
+
+    return jsonify({"suggestions": [
+        {"label": f"{r['address_raw']}, {r['city']}",
+         "address": r["address_raw"], "city": r["city"],
+         "parcel_id": r["county_parcel_id"], "county": r["county"]}
+        for r in rows
+    ]})
+
+
+# ─────────────────────────────────────────────────────────────────
 # API: Search
 # ─────────────────────────────────────────────────────────────────
 
