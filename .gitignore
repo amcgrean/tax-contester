@@ -16,6 +16,8 @@ env/
 
 # Environment / secrets
 .env
+.env.local
+.env*.local
 *.env
 dallas/.env
 
@@ -39,6 +41,11 @@ dallas/data/
 *.csv
 *.ndjson
 *.zip
+
+# DB dumps
+*.sql
+*.dump
+iowa_ptax_dump*
 
 # Logs
 *.log

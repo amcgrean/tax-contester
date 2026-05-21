@@ -21,17 +21,34 @@ import psycopg2.extras
 
 app = Flask(__name__)
 
+# Load .env from project root (one level up from web/)
+_env_path = Path(__file__).parent.parent / ".env"
+if _env_path.exists():
+    for line in _env_path.read_text().splitlines():
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            k, _, v = line.partition("=")
+            os.environ.setdefault(k.strip(), v.strip())
+
 
 # ─────────────────────────────────────────────────────────────────
 # DB helpers
 # ─────────────────────────────────────────────────────────────────
 
 def get_conn():
+    """
+    Prefer DATABASE_URL (Neon pooler) when set.
+    Falls back to individual env vars, then local dev defaults.
+    """
+    url = os.getenv("DATABASE_URL")
+    if url:
+        return psycopg2.connect(url)
     return psycopg2.connect(
-        host="localhost",
-        dbname="iowa_propertytax",
-        user="postgres",
-        password="iowa2026",
+        host=os.getenv("DB_HOST", "localhost"),
+        port=int(os.getenv("DB_PORT", 5432)),
+        dbname=os.getenv("DB_NAME", "iowa_propertytax"),
+        user=os.getenv("DB_USER", "postgres"),
+        password=os.getenv("DB_PASS", "iowa2026"),
     )
 
 
@@ -175,14 +192,16 @@ def api_search():
 
     # Try parcel ID match first
     clean = q.replace("-", "").replace(" ", "")
+    _lat = """LEFT JOIN LATERAL (
+                SELECT assessed_total, tax_year FROM assessments
+                WHERE property_id = p.id ORDER BY tax_year DESC LIMIT 1
+              ) a ON true"""
+
     if clean.isdigit() and len(clean) >= 8:
         results = query(f"""
             SELECT p.id, p.county_parcel_id, p.address_raw, p.city, p.state, p.zip,
-                   p.county, p.owner_name,
-                   a.assessed_total, a.tax_year
-            FROM properties p
-            LEFT JOIN assessments a ON a.property_id = p.id
-                AND a.tax_year = (SELECT MAX(a2.tax_year) FROM assessments a2 WHERE a2.property_id = p.id)
+                   p.county, p.owner_name, a.assessed_total, a.tax_year
+            FROM properties p {_lat}
             WHERE (p.county_parcel_id ILIKE %s OR p.alternate_parcel_id ILIKE %s)
             {county_sql}
             LIMIT 10
@@ -194,11 +213,8 @@ def api_search():
         like = "%" + " ".join(terms) + "%"
         results = query(f"""
             SELECT p.id, p.county_parcel_id, p.address_raw, p.city, p.state, p.zip,
-                   p.county, p.owner_name,
-                   a.assessed_total, a.tax_year
-            FROM properties p
-            LEFT JOIN assessments a ON a.property_id = p.id
-                AND a.tax_year = (SELECT MAX(a2.tax_year) FROM assessments a2 WHERE a2.property_id = p.id)
+                   p.county, p.owner_name, a.assessed_total, a.tax_year
+            FROM properties p {_lat}
             WHERE p.address_raw ILIKE %s
             {county_sql}
             ORDER BY p.address_raw
@@ -232,8 +248,14 @@ def api_parcel(parcel_id):
                a.assessed_total, a.assessed_land, a.assessed_improvements,
                a.assessed_dwelling, a.tax_year, a.gross_taxes_due, a.net_taxes_due
         FROM properties p
-        LEFT JOIN assessments a ON a.property_id = p.id
-            AND a.tax_year = (SELECT MAX(a2.tax_year) FROM assessments a2 WHERE a2.property_id = p.id)
+        LEFT JOIN LATERAL (
+            SELECT assessed_total, assessed_land, assessed_improvements,
+                   assessed_dwelling, tax_year, gross_taxes_due, net_taxes_due
+            FROM assessments
+            WHERE property_id = p.id
+            ORDER BY tax_year DESC
+            LIMIT 1
+        ) a ON true
         WHERE p.county_parcel_id = %s OR p.id::text = %s
         LIMIT 1
     """, (parcel_id, parcel_id))

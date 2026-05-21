@@ -71,6 +71,11 @@ UNDER_THRESHOLD = 0.90   # assessed < 90%  of implied → under-assessed
 # ── DB ────────────────────────────────────────────────────────────────────────
 
 def get_db():
+    # Prefer unpooled URL for comp engine (multiple sequential queries)
+    # Falls back to pooled URL, then individual env vars, then local defaults
+    url = os.getenv("DATABASE_URL_UNPOOLED") or os.getenv("DATABASE_URL")
+    if url:
+        return psycopg2.connect(url, cursor_factory=psycopg2.extras.RealDictCursor)
     return psycopg2.connect(
         host    =os.getenv("DB_HOST", "localhost"),
         port    =int(os.getenv("DB_PORT", 5432)),
@@ -85,32 +90,34 @@ def get_db():
 def get_subject(conn, parcel_id: str = None, address: str = None) -> Optional[dict]:
     cur = conn.cursor()
 
+    # LATERAL join used throughout — avoids correlated subquery per row
+    _latest_assess = """
+        LEFT JOIN LATERAL (
+            SELECT assessed_total, assessed_land, assessed_improvements,
+                   assessed_dwelling, tax_year
+            FROM assessments
+            WHERE property_id = p.id
+            ORDER BY tax_year DESC
+            LIMIT 1
+        ) a ON true
+    """
+
     if parcel_id:
-        cur.execute("""
-            SELECT p.*,
-                   a.assessed_total, a.assessed_land, a.assessed_improvements,
+        cur.execute(f"""
+            SELECT p.*, a.assessed_total, a.assessed_land, a.assessed_improvements,
                    a.assessed_dwelling, a.tax_year
             FROM properties p
-            LEFT JOIN assessments a
-                ON a.property_id = p.id AND a.tax_year = (
-                    SELECT MAX(tax_year) FROM assessments
-                    WHERE property_id = p.id
-                )
+            {_latest_assess}
             WHERE p.county_parcel_id = %s AND p.county = 'polk'
             LIMIT 1
         """, (parcel_id.strip(),))
 
     elif address:
-        cur.execute("""
-            SELECT p.*,
-                   a.assessed_total, a.assessed_land, a.assessed_improvements,
+        cur.execute(f"""
+            SELECT p.*, a.assessed_total, a.assessed_land, a.assessed_improvements,
                    a.assessed_dwelling, a.tax_year
             FROM properties p
-            LEFT JOIN assessments a
-                ON a.property_id = p.id AND a.tax_year = (
-                    SELECT MAX(tax_year) FROM assessments
-                    WHERE property_id = p.id
-                )
+            {_latest_assess}
             WHERE p.county = 'polk'
               AND p.address_raw ILIKE %s
             ORDER BY p.living_area_sqft DESC NULLS LAST
@@ -169,11 +176,14 @@ CANDIDATE_SQL = """
         a.tax_year        AS comp_assess_year
     FROM sales s
     JOIN properties p ON p.id = s.property_id
-    LEFT JOIN assessments a
-        ON a.property_id = p.id
-        AND a.tax_year = (
-            SELECT MAX(tax_year) FROM assessments WHERE property_id = p.id
-        )
+    -- LATERAL replaces the correlated subquery — uses idx_assess_prop_year
+    LEFT JOIN LATERAL (
+        SELECT assessed_total, tax_year
+        FROM assessments
+        WHERE property_id = p.id
+        ORDER BY tax_year DESC
+        LIMIT 1
+    ) a ON true
     WHERE p.county = 'polk'
       AND s.arms_length_flag = TRUE
       AND s.sale_date >= CURRENT_DATE - INTERVAL '{lookback} months'
