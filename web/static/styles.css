@@ -1071,6 +1071,253 @@ body.mobile-preview .screen[data-screen="comps"] .conclusion {
 @keyframes spin { to { transform: rotate(360deg); } }
 .icon.spin { animation: spin 1s linear infinite; transform-origin: center; display: inline-block; }
 
+/* ============================================================
+   Responsive — tablet (≤768px) and phone (≤480px)
+   ============================================================ */
+@media (max-width: 768px) {
+  /* --- shell --- */
+  .topbar {
+    gap: 12px;
+    flex-wrap: wrap;
+    height: auto;
+    padding: 8px 14px;
+    row-gap: 6px;
+  }
+  .brand { min-width: 0; flex: 1 1 auto; min-width: 0; }
+  .brand-text { min-width: 0; }
+  .brand-title { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .tabs {
+    order: 3;
+    flex-basis: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    min-height: 44px;
+    padding: 10px 14px;
+  }
+  .tab.is-active::after { bottom: -2px; }
+
+  .topbar-right { margin-left: auto; flex-wrap: wrap; }
+
+  main { padding: 16px 14px 80px; }
+
+  .page-foot {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 14px 24px;
+    max-width: none;
+  }
+
+  /* --- generic --- */
+  .h1 { font-size: 22px; }
+  .card-pad { padding: 14px 14px; }
+  .card-head { padding: 12px 14px; }
+  .banner { padding: 10px 12px; gap: 10px; }
+  .banner .b-actions { margin-left: 0; width: 100%; }
+
+  /* --- touch targets --- */
+  .btn { min-height: 44px; padding: 10px 14px; }
+  .btn-sm { min-height: 36px; padding: 6px 10px; }
+
+  /* --- 1. Search --- */
+  .search-hero { padding: 24px 18px 22px; }
+  .search-hero h1 { font-size: 26px; }
+  .search-hero .lede { font-size: 14px; }
+  .search-box {
+    grid-template-columns: 1fr;
+  }
+  .search-box select {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .search-box .go {
+    padding: 14px 22px;
+    min-height: 48px;
+    justify-content: center;
+  }
+  .search-grid {
+    grid-template-columns: 1fr;
+    margin-top: 20px;
+  }
+  .recent-row {
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+    padding: 10px 14px;
+  }
+  .recent-row .pid,
+  .recent-row .when { grid-column: 1 / -1; font-size: 10.5px; }
+  .qstats { grid-template-columns: 1fr 1fr; }
+  .coverage-map { margin: 10px 14px 14px; height: 150px; }
+
+  /* --- 2. Parcel --- */
+  .parcel-head {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    align-items: start;
+  }
+  .parcel-head h1 { font-size: 22px; }
+  .parcel-actions { flex-wrap: wrap; }
+  .parcel-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .parcel-grid .span-2 { grid-column: auto; }
+  .parcel-photo { height: 160px; }
+  .assess-card .nums { grid-template-columns: 1fr 1fr; }
+
+  /* --- 3. Comps --- */
+  .comps-head {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .comps-toolbar { gap: 6px; }
+  .conclusion {
+    grid-template-columns: auto 1fr;
+    gap: 12px 14px;
+    padding: 14px 16px;
+    text-align: left;
+  }
+  .conclusion .actions {
+    grid-column: 1 / -1;
+    flex-wrap: wrap;
+  }
+  .conclusion .verdict { font-size: 19px; }
+  .comps-layout {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .map { height: 240px; }
+  .map.header { height: 180px; }
+  .comp-controls {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+  .comp-controls .right { margin-left: 0; width: 100%; justify-content: flex-start; }
+  .comp-controls .seg button { min-height: 36px; padding: 8px 12px; font-size: 12px; }
+  .comp-table-card { overflow-x: auto; }
+  .comp-table { font-size: 12px; min-width: 700px; }
+  .comp-table th { top: 0; padding: 8px 10px; }
+  .comp-table td { padding: 10px; }
+  .method-card .steps { grid-template-columns: 1fr 1fr; }
+
+  /* --- 4. Admin --- */
+  .admin-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .source-row {
+    grid-template-columns: 1fr auto;
+    gap: 6px 12px;
+    padding: 12px 14px;
+  }
+  .source-row .desc { grid-column: 1 / -1; }
+  .source-row .stamp,
+  .source-row .count { font-size: 11px; }
+  .runlog { padding: 12px 12px; font-size: 11px; }
+  .kv { grid-template-columns: 1fr auto; font-size: 12.5px; }
+
+  /* --- 5. Packet --- */
+  .packet-layout {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .packet-side {
+    position: static;
+    margin-bottom: 4px;
+  }
+  .packet-side .h3 { padding: 0 4px 6px; }
+  .packet-side ul {
+    display: flex;
+    overflow-x: auto;
+    gap: 6px;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .packet-side ul::-webkit-scrollbar { display: none; }
+  .packet-side li {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+  }
+  .packet-side li .pgnum { margin-left: 6px; }
+  .paper {
+    padding: 24px 18px;
+    min-height: auto;
+  }
+  .paper h2.cover { font-size: 26px; max-width: none; }
+  .paper p { font-size: 13.5px; }
+  .paper .cover-meta {
+    grid-template-columns: 110px 1fr;
+    margin-top: 24px;
+    max-width: none;
+  }
+  .paper .seal {
+    position: static;
+    width: 64px;
+    height: 64px;
+    margin: 24px 0 0;
+    font-size: 8.5px;
+  }
+  .paper .deck-h { margin-bottom: 20px; }
+  .paper .pg-stamp { top: 12px; right: 14px; }
+
+  /* --- tweaks panel — bottom sheet --- */
+  .tweaks {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    width: auto;
+    max-height: 60vh;
+  }
+  .tweaks-body { max-height: calc(60vh - 44px); }
+  .tweaks-body label { padding: 8px 0; }
+}
+
+@media (max-width: 480px) {
+  /* phone-only refinements */
+  .topbar { padding: 8px 12px; }
+  main { padding: 14px 12px 72px; }
+
+  .search-hero { padding: 20px 14px 18px; }
+  .search-hero h1 { font-size: 22px; }
+  .search-hero .lede { font-size: 13.5px; margin-bottom: 18px; }
+
+  .qstats { grid-template-columns: 1fr; }
+  .assess-card .nums { grid-template-columns: 1fr; }
+  .method-card .steps { grid-template-columns: 1fr; }
+
+  .parcel-head h1 { font-size: 20px; }
+
+  .conclusion {
+    grid-template-columns: 1fr;
+    text-align: left;
+  }
+  .conclusion .gauge { justify-self: start; }
+
+  /* Comp table: hide low-value columns on phone (mirrors body.mobile-preview).
+     Inline widths on the hidden <th>s are inert when display:none. */
+  .comp-table { min-width: 0; font-size: 12px; }
+  .comp-table th:nth-child(n+5),
+  .comp-table td:nth-child(n+5) { display: none; }
+
+  .paper { padding: 20px 14px; }
+  .paper h2.cover { font-size: 22px; }
+  .paper .cover-meta { grid-template-columns: 1fr; gap: 2px 0; }
+  .paper .cover-meta b { color: var(--ink-3); }
+
+  .page-foot { font-size: 11px; }
+}
+
 /* small tweaks */
 @media print {
   .topbar, .tabs, .tweaks, .page-foot { display: none !important; }
