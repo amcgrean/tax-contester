@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Protest Packet — {{ address }}, {{ city }}</title>
+<script>window.onload = () => window.print();</script>
+<style>
+  @page {
+    size: letter;
+    margin: 1in 1in 0.85in 1in;
+    @bottom-center {
+      content: "Iowa Property Tax Comp Engine · Informational only — not legal advice";
+      font-size: 8pt;
+      color: #888;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 11pt;
+    line-height: 1.55;
+    color: #111;
+    background: #fff;
+  }
+
+  h1 { font-size: 16pt; font-weight: normal; margin-bottom: 6pt; }
+  h2 { font-size: 13pt; font-weight: bold; margin: 18pt 0 6pt; border-bottom: 1px solid #ccc; padding-bottom: 4pt; }
+  h3 { font-size: 11pt; font-weight: bold; margin: 12pt 0 4pt; }
+  p  { margin-bottom: 8pt; }
+
+  .kicker {
+    font-family: Arial, sans-serif;
+    font-size: 8pt;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: #555;
+    margin-bottom: 6pt;
+  }
+
+  .header-block {
+    border-bottom: 2px solid #111;
+    padding-bottom: 10pt;
+    margin-bottom: 16pt;
+  }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: 140pt 1fr 140pt 1fr;
+    gap: 4pt 8pt;
+    margin: 12pt 0;
+    font-size: 10pt;
+  }
+  .meta-grid b { color: #444; font-weight: normal; font-family: Arial, sans-serif; font-size: 9pt; text-transform: uppercase; letter-spacing: .04em; }
+
+  .verdict-box {
+    border: 1.5pt solid #111;
+    border-radius: 3pt;
+    padding: 10pt 14pt;
+    margin: 14pt 0;
+    display: flex;
+    gap: 16pt;
+    align-items: flex-start;
+  }
+  .verdict-box .v-label {
+    font-family: Arial, sans-serif;
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: #555;
+  }
+  .verdict-box .v-value {
+    font-size: 22pt;
+    font-weight: bold;
+    line-height: 1.1;
+    color: {% if verdict == 'OVER-ASSESSED' %}#b91c1c{% elif verdict == 'UNDER-ASSESSED' %}#166534{% else %}#1e3a5f{% endif %};
+  }
+  .verdict-box .v-body { flex: 1; font-size: 10.5pt; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9.5pt;
+    margin: 8pt 0 14pt;
+  }
+  thead th {
+    background: #f4f4f4;
+    border-bottom: 1pt solid #bbb;
+    border-top: 1pt solid #bbb;
+    padding: 4pt 6pt;
+    text-align: left;
+    font-family: Arial, sans-serif;
+    font-size: 8.5pt;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: #444;
+  }
+  thead th.num { text-align: right; }
+  tbody td {
+    padding: 4pt 6pt;
+    border-bottom: 0.5pt solid #e0e0e0;
+    vertical-align: top;
+  }
+  tbody td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tbody tr.subject td { background: #f9f9f9; font-weight: 600; }
+  tbody tr:last-child td { border-bottom: 1pt solid #bbb; }
+
+  .boilerplate {
+    font-size: 9.5pt;
+    color: #333;
+    margin-top: 10pt;
+  }
+  .boilerplate p { margin-bottom: 6pt; }
+
+  .sig-block {
+    margin-top: 28pt;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 40pt;
+  }
+  .sig-line { border-top: 1pt solid #666; margin-top: 24pt; padding-top: 4pt; font-size: 9.5pt; color: #444; }
+
+  .footnote {
+    font-size: 8.5pt;
+    color: #666;
+    margin-top: 10pt;
+    font-family: Arial, sans-serif;
+  }
+
+  .expansion-note {
+    font-size: 9.5pt;
+    color: #666;
+    font-style: italic;
+    margin-bottom: 6pt;
+  }
+
+  .page-break { page-break-before: always; margin-top: 0; }
+
+  /* Screen-only: hide print prompt in browser */
+  @media screen {
+    body { max-width: 700px; margin: 40px auto; padding: 24px; }
+    .print-hint {
+      background: #1e3a5f; color: #fff;
+      padding: 10px 16px; border-radius: 6px;
+      font-family: Arial, sans-serif; font-size: 13px;
+      margin-bottom: 24px;
+    }
+  }
+  @media print {
+    .print-hint { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="print-hint">
+  Your browser's Print dialog should open automatically. Choose <strong>Save as PDF</strong> to download.
+  If it didn't open, press <strong>Ctrl+P</strong> (Windows) or <strong>⌘+P</strong> (Mac).
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE 1 — Cover & Summary
+═══════════════════════════════════════════════════════ -->
+
+<div class="header-block">
+  <div class="kicker">{{ county }} County Board of Review · {{ assessment_year }} Assessment Year · Iowa Code §441.37</div>
+  <h1>Petition to Adjust Assessed Value</h1>
+  <div style="font-size:10.5pt; color:#333;">{{ address }}, {{ city }}, {{ state }} {{ zip }}</div>
+</div>
+
+<div class="meta-grid">
+  <b>Parcel ID</b>      <span style="font-family:monospace">{{ parcel_id }}</span>
+  <b>Owner</b>          <span>{{ owner }}</span>
+  <b>Assessment year</b><span>{{ assessment_year }}</span>
+  <b>Filed</b>          <span>{{ today }}</span>
+  <b>Year built</b>     <span>{{ year_built }}</span>
+  <b>Living area</b>    <span>{{ sqft_fmt }} sqft</span>
+  <b>Beds / Baths</b>   <span>{{ bb }}</span>
+  <b>Style</b>          <span>{{ bldg_style }}</span>
+</div>
+
+<div class="verdict-box">
+  <div>
+    <div class="v-label">Verdict</div>
+    <div class="v-value">
+      {% if verdict == 'OVER-ASSESSED' %}OVER{% elif verdict == 'UNDER-ASSESSED' %}UNDER{% else %}FAIR{% endif %}
+    </div>
+    <div style="font-size:9pt;color:#555;margin-top:2pt">{{ pct_diff }}%</div>
+  </div>
+  <div class="v-body">
+    {% if verdict == 'OVER-ASSESSED' %}
+    The {{ assessment_year }} assessed value of <strong>{{ assessed_fmt }}</strong> exceeds the
+    similarity-weighted comp median by approximately <strong>{{ pct_diff }}%</strong>
+    (~{{ over_amt_fmt or implied_fmt }} implied market value from {{ n_comps }} comparable sales).
+    We request a revised assessment of <strong>{{ implied_fmt }}</strong>.
+    {% elif verdict == 'UNDER-ASSESSED' %}
+    The {{ assessment_year }} assessed value of <strong>{{ assessed_fmt }}</strong> is below the
+    similarity-weighted comp median by approximately <strong>{{ pct_diff }}%</strong>
+    ({{ implied_fmt }} implied from {{ n_comps }} comparable sales).
+    No reduction is being requested; this packet is filed for informational purposes.
+    {% else %}
+    The {{ assessment_year }} assessed value of <strong>{{ assessed_fmt }}</strong> is within {{ pct_diff }}%
+    of the similarity-weighted comp median of {{ implied_fmt }} from {{ n_comps }} comparable sales.
+    Assessment appears reasonable relative to current market evidence.
+    {% endif %}
+  </div>
+</div>
+
+
+<h2>Comparable Sales Summary</h2>
+
+{% if expansion_note %}
+<p class="expansion-note">Note: {{ expansion_note }}</p>
+{% endif %}
+
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th>Address</th>
+      <th class="num">Sqft</th>
+      <th>Bd/Ba</th>
+      <th class="num">Yr Built</th>
+      <th class="num">Distance</th>
+      <th class="num">Sale Date</th>
+      <th class="num">Sale Price</th>
+      <th class="num">$/sqft</th>
+      <th class="num">Similarity</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="subject">
+      <td>S</td>
+      <td>{{ address }} <span style="font-size:8pt;color:#666">· subject</span></td>
+      <td class="num">{{ sqft_fmt }}</td>
+      <td>{{ bb }}</td>
+      <td class="num">{{ year_built }}</td>
+      <td class="num">—</td>
+      <td class="num">—</td>
+      <td class="num">{{ assessed_fmt }}*</td>
+      <td class="num">{{ median_psf_fmt }}</td>
+      <td class="num">100</td>
+    </tr>
+    {% for c in comps %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ c.address }}, {{ c.city }}</td>
+      <td class="num">{{ c.sqft_fmt }}</td>
+      <td>{{ c.bb }}</td>
+      <td class="num">{{ c.year_built }}</td>
+      <td class="num">{{ c.distance_fmt }}</td>
+      <td class="num">{{ c.sale_date_fmt }}</td>
+      <td class="num">{{ c.sale_price_fmt }}</td>
+      <td class="num">{{ c.psf_fmt }}</td>
+      <td class="num">{{ c.similarity }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<p class="footnote">
+  * Subject value is the {{ assessment_year }} assessed value, not a sale price.
+  All comparable sales are arms-length, recorded in the county recorder's office.
+  Similarity score is a weighted composite: living area (30%), recency (25%),
+  neighborhood (15%), age (15%), distance (10%), lot size (5%).
+</p>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     PAGE 2 — Protest Argument
+═══════════════════════════════════════════════════════ -->
+
+<div class="page-break">
+  <div class="header-block">
+    <div class="kicker">{{ county }} County Board of Review · Grounds for Protest</div>
+    <h1>Statement of Grounds — Iowa Code §441.37(1)(a)</h1>
+    <div style="font-size:10.5pt;color:#333">{{ address }}, {{ city }} · Parcel {{ parcel_id }}</div>
+  </div>
+
+  <div class="boilerplate">
+
+    <h3>Statutory Basis</h3>
+    <p>
+      Pursuant to Iowa Code §441.37(1)(a), the owner of property assessed for taxation may protest
+      the assessment to the local board of review on the ground that the property is assessed for
+      more than the value authorized by law.
+    </p>
+
+    <h3>Statement of Facts</h3>
+    <p>
+      The subject property at <strong>{{ address }}, {{ city }}, Iowa {{ zip }}</strong> (Parcel ID
+      <span style="font-family:monospace">{{ parcel_id }}</span>) was assessed for the
+      {{ assessment_year }} tax year at <strong>{{ assessed_fmt }}</strong>.
+    </p>
+    <p>
+      A review of {{ n_comps }} arms-length sales of comparable residential properties within
+      0.75 miles, sold within the past 6–36 months, yields a similarity-weighted median price of
+      <strong>{{ median_psf_fmt }}/sqft</strong>. Applied to the subject's {{ sqft_fmt }} of
+      living area, this implies a market value of approximately <strong>{{ implied_fmt }}</strong>.
+    </p>
+    {% if verdict == 'OVER-ASSESSED' %}
+    <p>
+      The assessor's value of {{ assessed_fmt }} therefore exceeds the market-supported value
+      by approximately <strong>{{ pct_diff }}%</strong>{% if over_amt_fmt %} (~{{ over_amt_fmt }}){% endif %},
+      which is above the statutory ±10% threshold for protest eligibility.
+    </p>
+
+    <h3>Relief Requested</h3>
+    <p>
+      The petitioner respectfully requests that the {{ county }} County Board of Review reduce
+      the assessed value of the subject property to <strong>{{ implied_fmt }}</strong> for the
+      {{ assessment_year }} assessment year, consistent with the comparable sales evidence
+      presented in this petition.
+    </p>
+    {% else %}
+    <h3>Purpose of Petition</h3>
+    <p>
+      This petition is submitted to preserve the owner's rights under Iowa Code §441.37 and to
+      provide the Board with market evidence supporting the current assessment. No reduction
+      is being requested at this time.
+    </p>
+    {% endif %}
+
+    <h3>Methodology — Comp Selection &amp; Scoring</h3>
+    <p>
+      Comparable properties were identified using the following criteria:
+      same county; residential classification; living area within ±20% of subject;
+      year built within ±15 years of subject; arms-length deed type; sold within the
+      past 24 months (expanded to 36 months if fewer than 5 comps were found).
+      Each candidate was scored on a 100-point scale weighting the factors listed in the
+      footnote on page 1. The top-scoring properties (up to 8) were selected as comparables.
+    </p>
+    <p>
+      Data sources: Polk County Assessor CAMA system (Tyler Technologies), Polk County
+      Recorder sales records, and Atlas geocoding database. All data is as of the date
+      this packet was generated.
+    </p>
+
+    <h3>Iowa Protest Deadline</h3>
+    <p>
+      Protests must be filed with the local Board of Review between
+      <strong>April 2 and April 30</strong> of the assessment year. This packet was prepared
+      on {{ today }}.
+    </p>
+
+  </div>
+
+  <div class="sig-block">
+    <div>
+      <div class="sig-line">Signature of owner or authorized agent</div>
+    </div>
+    <div>
+      <div class="sig-line">Date</div>
+    </div>
+    <div style="margin-top:20pt">
+      <div class="sig-line">Printed name</div>
+    </div>
+    <div style="margin-top:20pt">
+      <div class="sig-line">Phone / email</div>
+    </div>
+  </div>
+
+  <p class="footnote" style="margin-top:28pt">
+    This document was prepared using the Iowa Property Tax Comp Engine (informational purposes only).
+    It does not constitute legal or tax advice. Consult a licensed attorney or property tax consultant
+    before filing a protest. Iowa Code Chapter 441 governs assessment, protest, and appeal procedures.
+  </p>
+</div>
+
+</body>
+</html>

@@ -89,6 +89,8 @@ function renderSearch(host) {
       </div>
     </section>
 
+    <div id="deadline-banner"></div>
+
     <div class="search-grid">
       <div class="card">
         <div class="card-head">
@@ -141,6 +143,35 @@ function renderSearch(host) {
       </div>
     </div>
   `;
+
+  // Protest deadline countdown
+  (function() {
+    const banner = host.querySelector('#deadline-banner');
+    if (!banner) return;
+    const now = new Date();
+    const year = now.getFullYear();
+    const open = new Date(year, 3, 2);   // April 2
+    const close = new Date(year, 3, 30); // April 30
+    close.setHours(23, 59, 59);
+    const daysLeft = Math.ceil((close - now) / 86400000);
+    if (now >= open && now <= close) {
+      banner.innerHTML = `<div class="banner accent" style="margin:0 0 16px">
+        <div class="b-icon">${ICONS.alert}</div>
+        <div class="b-body">
+          <strong>Protest window open.</strong>
+          <span class="muted"> ${daysLeft} day${daysLeft !== 1 ? 's' : ''} left to file with the Board of Review (deadline April 30, ${year}).</span>
+        </div>
+      </div>`;
+    } else if (daysLeft > 0 && daysLeft <= 60) {
+      banner.innerHTML = `<div class="banner" style="margin:0 0 16px">
+        <div class="b-icon">${ICONS.alert}</div>
+        <div class="b-body">
+          <strong>Protest window opens April 2.</strong>
+          <span class="muted"> ${daysLeft} days until the April 30, ${year} filing deadline.</span>
+        </div>
+      </div>`;
+    }
+  })();
 
   // Wire form
   const form = host.querySelector('#search-form');
@@ -517,9 +548,6 @@ function _renderCompsData(host, data) {
   const all = data.all_rows || [subj, ...comps];
   const v = data.verdict;
 
-  // Rough scatter positions for the fake map
-  const positions = [[50,50],[56,46],[41,60],[47,35],[64,56],[32,42],[70,68],[58,28],[28,65]];
-  const allWithPos = all.map((r, i) => ({ ...r, x: (positions[i] || [50,50])[0], y: (positions[i] || [50,50])[1] }));
 
   const subjectDetail = data.subject_detail || {};
   const addr = subj.address || subjectDetail.address || '—';
@@ -578,20 +606,11 @@ function _renderCompsData(host, data) {
     <div class="comps-layout" id="comps-layout">
 
       <div class="map-card card" id="map-card">
-        <div class="map" id="map">
-          <div class="grid"></div>
-          <div class="road h1"></div>
-          <div class="road h2"></div>
-          <div class="road v1"></div>
-          <div class="road v2"></div>
-          ${allWithPos.map(c => `
-            <div class="pin ${c.subj ? 'subject' : ''}" style="left:${c.x}%;top:${c.y}%" title="${c.address}">${c.n}</div>
-          `).join('')}
-        </div>
+        <div id="leaflet-map" style="height:280px;border-radius:8px 8px 0 0;"></div>
         <div class="map-legend">
-          <span><span class="swatch" style="background:var(--ink)"></span>Subject</span>
-          <span><span class="swatch" style="background:var(--accent)"></span>Comp sales</span>
-          <span class="map-attrib">EPSG:4326</span>
+          <span><span class="swatch" style="background:#1e3a5f"></span>Subject</span>
+          <span><span class="swatch" style="background:#2563eb"></span>Comp sales</span>
+          <span class="map-attrib">OpenStreetMap</span>
         </div>
       </div>
 
@@ -625,7 +644,7 @@ function _renderCompsData(host, data) {
             </tr>
           </thead>
           <tbody>
-            ${allWithPos.map(c => `
+            ${all.map(c => `
               <tr class="${c.subj ? 'subject' : ''}">
                 <td><span class="pin-num">${c.n}</span></td>
                 <td>
@@ -668,11 +687,58 @@ function _renderCompsData(host, data) {
     </div>
   `;
 
+  // Leaflet map
+  _initLeafletMap(all);
+
   // Re-run button
   host.querySelector('#rerun-btn').addEventListener('click', () => {
     setState({ compsData: null });
     renderComps(host);
   });
+}
+
+function _initLeafletMap(rows) {
+  const mapEl = document.getElementById('leaflet-map');
+  if (!mapEl || typeof L === 'undefined') return;
+
+  const subj = rows.find(r => r.subj);
+  const comps = rows.filter(r => !r.subj);
+  const hasLatLon = r => r.latitude != null && r.longitude != null;
+
+  if (!subj || !hasLatLon(subj)) {
+    mapEl.style.display = 'none';
+    return;
+  }
+
+  const map = L.map(mapEl, { scrollWheelZoom: false }).setView([subj.latitude, subj.longitude], 14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 19,
+  }).addTo(map);
+
+  const subjIcon = L.divIcon({
+    html: '<div style="width:14px;height:14px;background:#1e3a5f;border:2px solid #fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.4)"></div>',
+    iconSize: [14, 14], iconAnchor: [7, 7], className: '',
+  });
+  const compIcon = L.divIcon({
+    html: '<div style="width:10px;height:10px;background:#2563eb;border:2px solid #fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.3)"></div>',
+    iconSize: [10, 10], iconAnchor: [5, 5], className: '',
+  });
+
+  L.marker([subj.latitude, subj.longitude], { icon: subjIcon })
+    .addTo(map)
+    .bindPopup(`<b>Subject</b><br>${subj.address}`);
+
+  const bounds = [[subj.latitude, subj.longitude]];
+  comps.forEach(c => {
+    if (!hasLatLon(c)) return;
+    bounds.push([c.latitude, c.longitude]);
+    L.marker([c.latitude, c.longitude], { icon: compIcon })
+      .addTo(map)
+      .bindPopup(`<b>${c.address}</b><br>${c.sale_price_fmt} · ${c.sale_date_fmt}<br>${c.psf_fmt} · ${c.similarity}% match`);
+  });
+
+  if (bounds.length > 1) map.fitBounds(bounds, { padding: [28, 28] });
 }
 
 window.sortCompsBy = function(field) { /* future: re-sort table rows */ };
