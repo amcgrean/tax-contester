@@ -1,7 +1,7 @@
 # Agent Handoff — Iowa Property Tax Comp Engine
 
-**Last updated:** 2026-05-24  
-**Session summary:** Full stack live on Vercel + Neon. Mobile-responsive CSS merged.
+**Last updated:** 2026-05-25  
+**Session summary:** Protest packet, Leaflet comp map, and deadline countdown shipped to main. Dallas County data is the only remaining task.
 
 ---
 
@@ -11,10 +11,13 @@
 |---|---|---|
 | Flask SPA shell | LIVE | tax-contester.vercel.app |
 | Search + autocomplete | LIVE | pg_trgm fuzzy, 180ms debounce |
-| Parcel detail screen | LIVE | Assessment history, SVG chart, YoY flag |
+| Parcel detail screen | LIVE | Assessment history, SVG chart, YoY flag banner |
 | Comp engine (Polk) | LIVE | 4-pass expansion, weighted scoring |
 | Admin screen | LIVE | Real stats from Neon |
-| Packet screen | PARTIAL | UI renders draft text; PDF export returns 501 |
+| Protest packet | LIVE | `/api/packet/<id>` returns 2-page print HTML; auto-triggers browser Print dialog |
+| Leaflet comp map | LIVE | Real OSM map on Comps screen; subject (navy) + comp pins (blue) with popups |
+| Protest deadline countdown | LIVE | Banner on Search screen — active Apr 2–30, heads-up 60 days prior |
+| YoY flag banner | LIVE | Shows on Parcel screen when assessment jumped >10% YoY |
 | Neon PostgreSQL | LIVE | 173K parcels, 381K sales, all indexes applied |
 | Vercel production deploy | LIVE | Auto-deploys from GitHub `main` branch |
 | Mobile / responsive UI | LIVE | Tablet ≤768px + phone ≤480px breakpoints in styles.css |
@@ -29,131 +32,76 @@ Tested against https://tax-contester.vercel.app:
 - `/api/autocomplete?q=maish` → 8 suggestions, fuzzy ranked ✓
 - `/api/parcel/01004795950043` → 5604 MAISH AVE, $598,800, 2026 assessment ✓
 - `/api/comps/01004795950043` → 6 comps, verdict FAIR (±5%), implied $631,870 ✓
+- `/api/packet/01004795950043` → 2-page HTML, auto-prints, comp table + §441.37 argument ✓
 
 ---
 
-## Mobile-Friendly Work — What Changed
+## What Changed in the 2026-05-25 Session
 
-Two files only. Zero backend impact.
+Four files changed, zero DB migrations needed.
 
-**`web/templates/index.html`** — one line:
-```html
-<!-- before -->
-<meta name="viewport" content="width=1280" />
-<!-- after -->
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-```
-This unlocked responsive layout on phones/tablets (previously the browser was forced to render at 1280px).
+**`web/app.py`**
+- `shape_comp()` now includes `latitude` / `longitude` on each comp row
+- Subject row in `api_comps` also exposes `latitude` / `longitude`
+- Replaced 501 stub: `api_packet()` now runs `ce.run_comps()`, formats all data, renders `packet.html`
 
-**`web/static/styles.css`** — 247 lines of media queries appended at end of file:
-- `@media (max-width: 768px)` — tablet breakpoint:
-  - Topbar: wraps to 2 rows, tabs scroll horizontally
-  - Search: single-column grid, touch-sized buttons (44px min)
-  - Parcel: single-column card grid
-  - Comps: stacked layout, comp table scrolls horizontally (min-width 700px), map 240px tall
-  - Admin: single-column grid
-  - Packet: sidebar becomes horizontal pill scroll, paper loses fixed width
-  - Tweaks panel: becomes bottom sheet (left/right 12px, max-height 60vh)
-- `@media (max-width: 480px)` — phone-only:
-  - Comp table hides columns 5+ (`nth-child(n+5)`) to fit narrow screens
-  - Stats grids collapse to 1 column
-  - Paper cover layout goes single-column
+**`web/templates/packet.html`** _(new file)_
+- Self-contained print-optimized Jinja template; no external CSS/JS dependencies
+- Page 1: property metadata grid, verdict box (red/green/blue by verdict), comp table, footnotes
+- Page 2: Iowa Code §441.37 argument, relief requested, methodology, signature block
+- `window.onload = () => window.print()` auto-triggers browser print dialog
+- Screen-only hint banner explains "Save as PDF" if user lands on it directly
+- WeasyPrint is NOT used — it requires GTK/Pango libs unavailable on Vercel
 
-**No changes to:** `app.js`, `screens.js`, `web/app.py`, `comp_engine.py`, any SQL, any API routes.  
-The existing `body.mobile-preview` CSS class (used by the tweaks panel) already existed and is unchanged — the new media queries are additive.
+**`web/static/screens.js`**
+- Removed fake CSS scatter map (hardcoded road/pin divs with random positions)
+- Added `<div id="leaflet-map">` in comp layout + `_initLeafletMap(rows)` called after render
+- Leaflet: subject navy pin, comp blue pins, popups with address/price/similarity, `fitBounds`
+- Gracefully hides map div if subject has no lat/lon
+- Added `#deadline-banner` slot at top of Search screen layout
+- Countdown logic: shows urgent banner during Apr 2–30 window; softer heads-up in 60-day lead-in
+
+**`web/templates/index.html`**
+- Added Leaflet 1.9.4 CSS + JS (unpkg CDN, SRI hashes) in `<head>`
 
 ---
 
-## Immediate Next Tasks (Priority Order)
+## Remaining Task — Dallas County Data
 
-### 1. PDF Protest Packet — `/api/packet/<parcel_id>`
-Currently returns 501. The UI on the Packet screen already renders a full draft — just needs an actual downloadable PDF.
+This is the only item left on the original game plan.
 
-**Recommended approach — browser-print HTML (no system deps, works on Vercel):**
+**What exists:** `dallas/dallas_beacon_scraper.py` — a Beacon scraper that hasn't been run.  
+**What's needed:** scrape Dallas County parcels → load into Neon → test comp engine against a Dallas parcel.
 
-In `web/app.py`, replace the 501 stub with a route that:
-1. Calls `ce.run_comps(parcel_id=parcel_id)` + `query("SELECT * FROM properties WHERE ...")`
-2. Renders a Jinja template `web/templates/packet.html` with print-optimized CSS
-3. Returns `Content-Type: text/html`
+**Steps (must run locally — needs Selenium + Chrome):**
 
-The template should open with `<script>window.onload = () => window.print()</script>` so it auto-opens the browser print dialog.
+1. `cd dallas && python dallas_beacon_scraper.py`  
+   Outputs rows to stdout or a file — check the script for its output format.
 
-Packet content:
-- Cover: property address, parcel ID, owner, assessment year, "Prepared for Iowa Board of Review"
-- Subject details: sqft, year built, beds/baths, assessed value, estimated taxes
-- Comp table: address, sale date, sale price, $/sqft, similarity %, distance, why chosen
-- Verdict: over-assessment amount in dollars + percentage
-- Protest argument boilerplate (Iowa Code §441.37 language)
-- Deadline reminder: Apr 2 – Apr 30
+2. Verify the output columns map to the `properties` and `assessments` tables (see schema below).  
+   The key columns needed: `county_parcel_id`, `address_raw`, `city`, `zip`, `year_built`,  
+   `living_area_sqft`, `lot_sf`, `bedrooms`, `bathrooms`, `bldg_style`, `property_class`,  
+   `owner_name`, `neighborhood_code`, `tax_district`, `latitude`, `longitude`.
 
-Add a print stylesheet to `styles.css` (the `@media print` block already hides topbar/tabs/tweaks — extend it to format the packet nicely).
+3. Load into Neon using the Polk loader as a template (`polk/polk_inventory_load.py`).  
+   Set `county = 'dallas'` on every inserted row. Use `DATABASE_URL_UNPOOLED` (direct connection).
 
-If PDF is preferred: `reportlab` (pure Python, no GTK) works on Vercel. WeasyPrint does NOT — it needs GTK/Pango system libs that aren't available in the Vercel Python runtime.
+4. Load assessments into the `assessments` table the same way.
 
-### 2. YoY Flag Banner on Parcel Screen
-The API already returns `flagged: true` and `yoy_pct` when assessment jumped >10% YoY.
-In `web/static/screens.js` → `renderParcel()`, after the parcel head section, insert:
+5. After load, run on Neon:
+   ```sql
+   ANALYZE properties;
+   ANALYZE assessments;
+   ```
 
-```javascript
-if (d.flagged) {
-  html += `<div class="banner banner--warn">
-    <span class="b-icon">⚠</span>
-    <div class="b-body">
-      <strong>Large assessment jump detected.</strong>
-      Assessment rose ${d.yoy_pct} (${d.yoy_amt_fmt}) from ${d.prev_year} → ${d.assessment_year}.
-      Run comps to see if a protest is warranted.
-    </div>
-    <div class="b-actions"><button class="btn btn-sm" onclick="window.__goto('comps')">Run Comps →</button></div>
-  </div>`;
-}
-```
+6. Test: `/api/autocomplete?q=<dallas+street>` should return Dallas results.  
+   Then: `/api/parcel/<dallas_parcel_id>` and `/api/comps/<dallas_parcel_id>`.
 
-### 3. Dallas County Data
-The Beacon scraper at `dallas/dallas_beacon_scraper.py` exists but has never been run against Neon.
+**Expected comp engine behavior for Dallas:**  
+Dallas neighborhood codes differ from Polk. The engine auto-expands: same neighborhood → tax_district → county-wide. It will fall back cleanly without code changes. Comps will be thinner until more sales data is loaded.
 
-Steps:
-1. Run scraper locally: `python dallas/dallas_beacon_scraper.py` (needs Selenium + Chrome)
-2. Verify output schema matches `properties` + `assessments` tables
-3. Load into Neon using same pattern as Polk loaders (see `polk/polk_inventory_load.py`)
-4. Run `ANALYZE properties;` on Neon after load
-5. Test a Dallas parcel: `/api/parcel/<dallas_parcel_id>`
-
-Dallas uses different neighborhood codes — comp engine will fall back through tax_district → county-wide if neighborhood pool is thin. Should work without engine changes.
-
-### 4. Leaflet Comp Map
-Each comp has `latitude`/`longitude` in Neon (full Polk coverage). A map on the Comps screen would be high value for visual review.
-
-In `screens.js` → `renderComps()`:
-- Load Leaflet via CDN in `index.html` head
-- Add a `<div id="comp-map" style="height:300px">` to the comps layout
-- After render, `L.map('comp-map')`, plot subject as red marker, each comp as blue marker with popup showing address + sale price
-- Coordinates are on comp objects as `latitude`/`longitude` — need to expose them from `/api/comps/<id>` response (currently not included, need to add to `shape_comp()` in `web/app.py`)
-
-### 5. Protest Deadline Countdown
-Iowa window: **April 2 – April 30** each year. No backend needed.
-
-In `screens.js` → `renderSearch()`, add at top of rendered HTML:
-```javascript
-const now = new Date();
-const deadline = new Date(now.getFullYear(), 3, 30); // April 30
-const daysLeft = Math.ceil((deadline - now) / 86400000);
-if (daysLeft > 0 && daysLeft <= 60) {
-  // show banner: "X days until protest deadline (April 30)"
-}
-```
-
----
-
-## Branch Workflow
-
-```powershell
-# For any change — push master for preview, push to main for production
-git push origin master        # preview deploy
-git push origin master:main --force   # production deploy (Vercel watches main)
-```
-
-To simplify: go to GitHub → Settings → Branches → change default branch to `main`,
-then always work and push to `main` directly.
+**Lat/lon for Dallas:**  
+If the Beacon scraper doesn't return coordinates, run the Atlas geocoder script (`polk/polk_atlas_load.py`) adapted for Dallas addresses, or geocode via the county GIS layer. Leaflet map on Comps screen will hide gracefully if lat/lon is missing.
 
 ---
 
@@ -166,6 +114,8 @@ then always work and push to `main` directly.
 - **`to_float()` everywhere** — psycopg2 returns Decimal; all arithmetic must go through this helper
 - **`ALWAYS_RENDER` set** — parcel/comps/packet re-render every nav; search/admin cache after first render
 - **Mobile breakpoints additive** — media queries appended at end of styles.css, don't reorganize the file
+- **Packet = print HTML, not PDF** — WeasyPrint needs GTK; browser print to PDF works on Vercel with zero deps
+- **Leaflet 1.9.4 via unpkg CDN** — SRI hashes pinned in index.html; don't upgrade without updating hashes
 
 ---
 
@@ -175,12 +125,15 @@ then always work and push to `main` directly.
 |---|---|
 | All API routes | `web/app.py` |
 | Comp algorithm | `comp_engine.py` — `run_comps()` |
+| Protest packet template | `web/templates/packet.html` |
 | Frontend render functions | `web/static/screens.js` |
 | Navigation / tab logic | `web/static/app.js` |
 | All styles incl. mobile | `web/static/styles.css` — mobile queries at bottom |
-| SPA shell template | `web/templates/index.html` |
+| SPA shell template | `web/templates/index.html` — Leaflet CDN in head |
 | DB schema | `setup_db.py` — `SCHEMA_SQL` constant |
 | Neon indexes | `neon_indexes.sql` (already applied — don't re-run without checking IF NOT EXISTS) |
+| Dallas scraper | `dallas/dallas_beacon_scraper.py` |
+| Polk loaders (use as template) | `polk/polk_inventory_load.py`, `polk/polk_sales_load.py` |
 | Env vars | `.env` (local, gitignored) + Vercel dashboard |
 
 ---
@@ -203,27 +156,25 @@ Use `/api/autocomplete?q=<street>` to find more. All 173K Polk parcels searchabl
 3. `ALWAYS_RENDER` set in `app.js` — removing it breaks parcel/comps navigation after state changes
 4. `.env` must never be committed — contains live Neon credentials
 5. `neon_indexes.sql` is gitignored — indexes already applied to Neon, don't drop/recreate blindly
-6. The existing `body.mobile-preview` CSS block in styles.css is the tweaks-panel preview mode — distinct from the new `@media` breakpoints, don't conflate them
+6. The existing `body.mobile-preview` CSS block in styles.css is the tweaks-panel preview mode — distinct from the real `@media` breakpoints, don't conflate them
+7. Leaflet SRI hashes in `index.html` — if you bump the Leaflet version, update both hashes
 
 ---
 
-## Deployment Checklist
+## Deployment
 
-```powershell
-# 1. Test locally
-cd C:\Users\indha\python\taxes\web
-python app.py
-# → http://localhost:5000
+Vercel auto-deploys on push to `main`. Work on a feature branch, open a PR, merge to main.
 
-# 2. Commit specific files (never git add -A blindly — .env is in the tree)
-cd C:\Users\indha\python\taxes
-git add web/app.py web/static/screens.js   # whichever files changed
+```bash
+git checkout -b your-branch
+git add web/app.py web/static/screens.js   # specific files — never git add -A (.env is in tree)
 git commit -m "your message"
+git push -u origin your-branch
+# → open PR → merge → Vercel deploys automatically (~60s)
+```
 
-# 3. Push — master for preview, master:main for production
-git push origin master
-git push origin master:main --force
-
-# 4. Verify production (~60s build time)
-# https://tax-contester.vercel.app/api/parcel/01004795950043
+Verify production after deploy:
+```
+https://tax-contester.vercel.app/api/parcel/01004795950043
+https://tax-contester.vercel.app/api/packet/01004795950043
 ```

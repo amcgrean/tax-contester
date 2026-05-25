@@ -153,11 +153,13 @@ result = ce.run_comps(address="5604 Maish Ave")
 | GET | `/api/autocomplete?q=&county=` | Fuzzy address typeahead (pg_trgm) |
 | GET | `/api/search?q=&county=` | Full search results |
 | GET | `/api/parcel/<parcel_id>` | Parcel detail + assessment history + chart |
-| GET | `/api/comps/<parcel_id>` | Run comp engine, return verdict + comp table |
+| GET | `/api/comps/<parcel_id>` | Run comp engine, return verdict + comp table (includes `latitude`/`longitude` on each row) |
 | GET | `/api/admin` | Stats, data source status, ingestion run log |
-| GET | `/api/packet/<parcel_id>` | **501 NOT IMPLEMENTED** — PDF placeholder |
+| GET | `/api/packet/<parcel_id>` | 2-page print-optimized HTML packet (auto-triggers browser print dialog) |
 
-All routes return JSON. `to_float()` helper converts psycopg2 `Decimal` → `float` everywhere before arithmetic.
+All routes except `/api/packet/` return JSON. `to_float()` helper converts psycopg2 `Decimal` → `float` everywhere before arithmetic.
+
+`/api/packet/` runs `ce.run_comps()` server-side and renders `web/templates/packet.html` via Jinja. No separate parcel lookup needed — comp engine result has all required fields.
 
 ---
 
@@ -173,6 +175,12 @@ All routes return JSON. `to_float()` helper converts psycopg2 `Decimal` → `flo
 - `setState(patch)` — update state + trigger re-renders if needed
 - Each screen fetches its own API endpoint and builds DOM from scratch
 - Autocomplete: 180ms debounce, keyboard nav (↑↓ Enter Esc), `selectSuggestion()` → `__goto('parcel')`
+- Comps screen: after `host.innerHTML` is set, `_initLeafletMap(rows)` is called to initialize the Leaflet map; requires Leaflet 1.9.4 (loaded via CDN in `index.html`)
+- Search screen: protest deadline countdown banner rendered immediately via IIFE after `host.innerHTML`
+- Packet screen (`renderPacket`): renders in-app draft from cached `compsData`/`parcelData`; the "Download PDF" button opens `/api/packet/<id>` in a new tab
+
+**index.html** — SPA shell:
+- Leaflet 1.9.4 CSS + JS loaded from unpkg CDN with SRI hashes — update hashes if bumping version
 
 ---
 
@@ -227,8 +235,12 @@ The `body.mobile-preview` class in styles.css is **separate** — it's a design-
 
 3. **ALWAYS_RENDER** — Parcel, Comps, and Packet screens must re-render on every navigation because they depend on `currentParcelId` state. If you add a new stateful screen, add it to this Set in `app.js`.
 
-4. **Branch discipline** — Vercel production branch is `main`. Work branch is `master`. Always push both when deploying. Consider changing GitHub default branch to `main` to simplify.
+4. **Branch discipline** — Vercel production branch is `main`. Work on a feature branch, open a PR, merge to main. Vercel auto-deploys on merge.
 
 5. **Neon pooler vs direct** — Web routes use `DATABASE_URL` (pooler/PgBouncer, good for short queries). Comp engine uses `DATABASE_URL_UNPOOLED` (direct, good for multi-step transactions). Don't swap them.
 
 6. **Dallas data is empty** — `properties WHERE county = 'dallas'` returns 0 rows. Dallas Beacon scraper exists but has never been run against Neon.
+
+7. **Leaflet CDN SRI hashes** — `index.html` loads Leaflet 1.9.4 with `integrity=` SRI hashes. If you bump the version, update both the CSS and JS hashes or the browser will block the scripts.
+
+8. **Packet route returns HTML, not JSON** — `/api/packet/<id>` is the only route that returns `text/html`. Don't call it with `apiFetch()` (which expects JSON). The "Download PDF" button opens it in a new tab via `<a href=...>`, which is correct.
