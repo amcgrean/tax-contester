@@ -206,6 +206,19 @@ Vercel auto-deploys on push to `main`. The `master` branch builds as a preview o
 
 ---
 
+## Responsive / Mobile Layout
+
+The site is fully responsive. Two breakpoints live at the **bottom of `styles.css`**:
+
+- `@media (max-width: 768px)` — tablet: tabs scroll horizontally, grids collapse to 1 col, comp table scrolls, tweaks panel becomes a bottom sheet
+- `@media (max-width: 480px)` — phone: comp table hides columns 5+ (`nth-child(n+5)`), all stat grids 1-col, paper cover single-col
+
+Viewport meta in `index.html` is `width=device-width, initial-scale=1` (was previously locked to 1280 — don't revert this).
+
+The `body.mobile-preview` class in styles.css is **separate** — it's a design-tool preview mode toggled by the tweaks panel. Don't confuse it with the real media queries.
+
+---
+
 ## Known Gotchas
 
 1. **Decimal arithmetic** — psycopg2 returns `decimal.Decimal` for `NUMERIC` columns. Always use `to_float(v)` before math. Never do `decimal_val * 0.019`.
