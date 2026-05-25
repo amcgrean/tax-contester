@@ -412,6 +412,8 @@ def api_comps(parcel_id):
         "psf_fmt": f"${s_val/s_sqft:.0f}" if (s_val and s_sqft) else "—",
         "similarity": 100,
         "why": "Subject property",
+        "latitude": to_float(subj.get("latitude")),
+        "longitude": to_float(subj.get("longitude")),
     }
 
     # ── Comp rows ──
@@ -439,6 +441,8 @@ def api_comps(parcel_id):
             "psf_fmt": f"${psf:.0f}" if psf else "—",
             "similarity": round(score),
             "why": c.get("_why_chosen", ""),
+            "latitude": to_float(c.get("latitude")),
+            "longitude": to_float(c.get("longitude")),
         }
 
     comp_rows = [shape_comp(c, i) for i, c in enumerate(comps_raw)]
@@ -634,13 +638,70 @@ def api_admin():
 
 
 # ─────────────────────────────────────────────────────────────────
-# PDF packet placeholder
+# Protest packet — printable HTML (use browser Print → Save as PDF)
 # ─────────────────────────────────────────────────────────────────
 
 @app.route("/api/packet/<parcel_id>")
 def api_packet(parcel_id):
-    # Future: WeasyPrint PDF generation
-    return jsonify({"error": "PDF generation not yet implemented. Use Print in browser."}), 501
+    result = ce.run_comps(parcel_id=parcel_id)
+    if result.get("status") == "error":
+        return jsonify({"error": "; ".join(result.get("errors", ["Unknown error"]))}), 404
+
+    subj = result["subject"]
+    comps_raw = result.get("comps", [])
+    verdict_raw = result.get("verdict", {})
+
+    assessed = to_float(verdict_raw.get("assessed_total"))
+    implied = to_float(verdict_raw.get("implied_value"))
+    ratio = to_float(verdict_raw.get("assessment_ratio"))
+    median_psf = to_float(verdict_raw.get("median_ppsf"))
+    verdict_str = verdict_raw.get("verdict", "FAIR")
+
+    over_amt = (assessed - implied) if (assessed and implied and assessed > implied) else None
+
+    comps_shaped = []
+    for c in comps_raw:
+        sqft = to_float(c.get("living_area_sqft"))
+        psf = to_float(c.get("price_per_sqft"))
+        comps_shaped.append({
+            "address": c.get("address_raw") or "—",
+            "city": c.get("city") or "—",
+            "sqft_fmt": f"{sqft:,.0f}" if sqft else "—",
+            "bb": f"{c.get('bedrooms','?')}/{c.get('bathrooms','?')}",
+            "year_built": c.get("year_built") or "—",
+            "sale_date_fmt": fmt_date(c.get("sale_date")),
+            "sale_price_fmt": fmt_money(c.get("sale_price")),
+            "psf_fmt": f"${psf:.0f}/sqft" if psf else "—",
+            "similarity": round(to_float(c.get("_score")) or 0),
+            "distance_fmt": f"{to_float(c.get('_distance_miles')):.2f} mi" if c.get("_distance_miles") is not None else "—",
+        })
+
+    s_sqft = to_float(subj.get("living_area_sqft"))
+    ctx = {
+        "parcel_id": subj.get("county_parcel_id") or parcel_id,
+        "address": subj.get("address_raw") or "—",
+        "city": subj.get("city") or "—",
+        "state": subj.get("state") or "IA",
+        "zip": subj.get("zip") or "",
+        "county": (subj.get("county") or "").upper(),
+        "owner": subj.get("owner_name") or "—",
+        "year_built": subj.get("year_built") or "—",
+        "sqft_fmt": f"{s_sqft:,.0f}" if s_sqft else "—",
+        "bb": f"{subj.get('bedrooms','?')}/{subj.get('bathrooms','?')}",
+        "bldg_style": subj.get("bldg_style") or "—",
+        "assessment_year": subj.get("tax_year") or 2026,
+        "assessed_fmt": fmt_money(assessed),
+        "implied_fmt": fmt_money(implied),
+        "median_psf_fmt": f"${median_psf:.0f}" if median_psf else "—",
+        "over_amt_fmt": fmt_money(over_amt) if over_amt else None,
+        "pct_diff": f"{abs((ratio - 1) * 100):.0f}" if ratio else "0",
+        "verdict": verdict_str,
+        "n_comps": len(comps_shaped),
+        "comps": comps_shaped,
+        "expansion_note": result.get("expansion_note"),
+        "today": datetime.today().strftime("%B %d, %Y"),
+    }
+    return render_template("packet.html", **ctx)
 
 
 # ─────────────────────────────────────────────────────────────────
