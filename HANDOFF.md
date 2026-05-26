@@ -1,7 +1,7 @@
 # Agent Handoff — Iowa Property Tax Comp Engine
 
-**Last updated:** 2026-05-25  
-**Session summary:** Protest packet, Leaflet comp map, and deadline countdown shipped to main. Dallas County data is the only remaining task.
+**Last updated:** 2026-05-26  
+**Session summary:** Marketing-director agent + 3 sub-skills (positioning, landing-page, local-SEO) shipped to main (PR #3). Foundation for all marketing artifacts now in place. Remaining product task is still Dallas County data; remaining marketing tasks are running the skills end-to-end and scaffolding Phase 2 skills.
 
 ---
 
@@ -21,6 +21,8 @@
 | Neon PostgreSQL | LIVE | 173K parcels, 381K sales, all indexes applied |
 | Vercel production deploy | LIVE | Auto-deploys from GitHub `main` branch |
 | Mobile / responsive UI | LIVE | Tablet ≤768px + phone ≤480px breakpoints in styles.css |
+| Marketing-director agent | SCAFFOLDED | `.claude/agents/marketing-director.md` + 3 skills; no artifacts generated yet |
+| Marketing BRAND.md | LIVE | `marketing/BRAND.md` — source of truth; review before generating artifacts |
 | Dallas County data | NOT STARTED | Scraper exists, never run against Neon |
 
 ---
@@ -33,6 +35,58 @@ Tested against https://tax-contester.vercel.app:
 - `/api/parcel/01004795950043` → 5604 MAISH AVE, $598,800, 2026 assessment ✓
 - `/api/comps/01004795950043` → 6 comps, verdict FAIR (±5%), implied $631,870 ✓
 - `/api/packet/01004795950043` → 2-page HTML, auto-prints, comp table + §441.37 argument ✓
+
+---
+
+## What Changed in the 2026-05-26 Session
+
+Shipped PR #3 — marketing-director agent + 3 sub-skills. **Config only,
+no code, no DB, no deploy impact.** Adds two new top-level directories:
+
+**`marketing/`** (artifacts directory)
+- `BRAND.md` — single source of truth: product facts, ICP (DIY homeowners
+  in Polk + Dallas), pricing (free, no monetization), voice rules,
+  Iowa property tax calendar
+- `README.md` — how to invoke the agent
+- `landing/` and `seo/` — empty subdirs, will hold generated briefs
+
+**`.claude/agents/marketing-director.md`** — router agent
+- Loads `marketing/BRAND.md` first on every invocation
+- Has a routing table mapping user request → sub-skill
+- Enforces the voice contract from BRAND.md on every output
+- Composes multi-step campaigns in dependency order
+  (positioning → landing → SEO → email → ads)
+
+**`.claude/skills/mkt-positioning/`** — April Dunford framework
+- `SKILL.md` runs the 5-step Dunford process explicitly
+- `KNOWLEDGE.md` carries the curated frameworks (Dunford, JTBD,
+  messaging hierarchy, anti-positioning)
+- `EXAMPLES.md` has Iowa-specific phrasings + good/bad value-prop
+  teardowns
+- `OUTPUT_TEMPLATE.md` defines `marketing/positioning.md` shape
+
+**`.claude/skills/mkt-landing-page/`** — Wiebe / Dry CRO frameworks
+- Produces 2 hero variants per page (audience+specificity, deadline+loss)
+- Quality bar rejects "leverage", "AI-powered", generic stock heroes
+- Ends every brief with concrete edits to `web/templates/index.html`
+
+**`.claude/skills/mkt-local-seo/`** — programmatic county/city pages
+- Intent classification (Action / Info / Navigation / Diagnostic / News)
+- Priority page roster for Polk (11 cities) + Dallas (5–6 cities)
+- Honest treatment of Dallas (comp engine not loaded — page ships with
+  "notify me when Dallas launches" callout, never fakes the engine)
+- Schema.org templates (Service + FAQPage + BreadcrumbList)
+
+### Marketing — what's NOT done yet
+
+- No actual marketing artifacts generated. The agent is scaffolded but
+  hasn't been run end-to-end. The expected first run is `mkt-positioning`
+  → produces `marketing/positioning.md`.
+- Phase 2 skills (`mkt-lifecycle-email`, `mkt-ads-copy`) and Phase 3
+  skills (`mkt-onboarding-audit`, `mkt-analytics`) are referenced in the
+  router but not built.
+- No analytics installed on the live site — `mkt-analytics` will need a
+  first pass before that skill is useful.
 
 ---
 
@@ -66,9 +120,34 @@ Four files changed, zero DB migrations needed.
 
 ---
 
-## Remaining Task — Dallas County Data
+## Remaining Tasks — Next Moves
 
-This is the only item left on the original game plan.
+### Marketing (highest leverage — site has ~0 traffic today)
+
+**Move 1 (do first):** Have Aaron read `marketing/BRAND.md` end-to-end
+and fix anything wrong about the product, voice, ICP, or pricing.
+Everything downstream amplifies what's in that file.
+
+**Move 2:** Run `mkt-positioning` to produce `marketing/positioning.md`.
+This unblocks the landing-page and SEO skills (they require it as input).
+
+**Move 3:** Run `mkt-landing-page` against the current `web/templates/index.html`
+in Critique mode first. Then Generate mode for new hero variants. Ship
+the winning hero — this is the first concrete conversion move.
+
+**Move 4:** Run `mkt-local-seo` for Tier 1 Polk cities (Des Moines,
+West Des Moines, Ankeny, Urbandale, Waukee). Each brief includes a
+Flask route + template plan. Implementing the pages is a separate
+engineering task — the brief is the spec.
+
+**Move 5 (separate PR):** Scaffold Phase 2 skills — `mkt-lifecycle-email`
+(April seasonal sequences) and `mkt-ads-copy` (Google/Meta).
+
+### Product
+
+## Dallas County Data
+
+This is the only product item left on the original game plan.
 
 **What exists:** `dallas/dallas_beacon_scraper.py` — a Beacon scraper that hasn't been run.  
 **What's needed:** scrape Dallas County parcels → load into Neon → test comp engine against a Dallas parcel.
@@ -135,6 +214,10 @@ If the Beacon scraper doesn't return coordinates, run the Atlas geocoder script 
 | Dallas scraper | `dallas/dallas_beacon_scraper.py` |
 | Polk loaders (use as template) | `polk/polk_inventory_load.py`, `polk/polk_sales_load.py` |
 | Env vars | `.env` (local, gitignored) + Vercel dashboard |
+| Marketing source of truth | `marketing/BRAND.md` |
+| Marketing director agent | `.claude/agents/marketing-director.md` |
+| Marketing skills | `.claude/skills/mkt-*/` (positioning, landing-page, local-seo) |
+| Marketing artifacts (generated) | `marketing/positioning.md`, `marketing/landing/`, `marketing/seo/` |
 
 ---
 
@@ -158,6 +241,7 @@ Use `/api/autocomplete?q=<street>` to find more. All 173K Polk parcels searchabl
 5. `neon_indexes.sql` is gitignored — indexes already applied to Neon, don't drop/recreate blindly
 6. The existing `body.mobile-preview` CSS block in styles.css is the tweaks-panel preview mode — distinct from the real `@media` breakpoints, don't conflate them
 7. Leaflet SRI hashes in `index.html` — if you bump the Leaflet version, update both hashes
+8. `marketing/BRAND.md` is the spine — don't let downstream marketing artifacts drift from it. If a product fact changes, update BRAND.md FIRST, then re-run skills in dependency order (positioning → landing → SEO).
 
 ---
 

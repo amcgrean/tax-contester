@@ -15,6 +15,9 @@ whether their property is over-assessed and by how much.
 **GitHub:** https://github.com/amcgrean/tax-contester  
 **Owner:** Aaron (amcgrean) — solo user, no auth needed
 
+> **Doing marketing work?** Don't read this file end-to-end. Jump to the
+> **Marketing System** section below, then read `marketing/BRAND.md`.
+
 ---
 
 ## Tech Stack
@@ -57,6 +60,18 @@ taxes/
 ├── requirements.txt          # flask, psycopg2-binary, python-dotenv
 ├── vercel.json               # Vercel build + routing config
 ├── run_web.bat               # Local dev launcher (Windows)
+├── marketing/                # Marketing artifacts (see "Marketing System" below)
+│   ├── BRAND.md              # Source of truth — product facts, ICP, voice, deadlines
+│   ├── README.md             # How to use the marketing-director agent
+│   ├── landing/              # Generated landing page briefs
+│   └── seo/                  # Generated SEO briefs (one per city/county/guide)
+├── .claude/
+│   ├── agents/
+│   │   └── marketing-director.md     # Router agent — loads BRAND.md, delegates to skills
+│   └── skills/
+│       ├── mkt-positioning/          # April Dunford framework
+│       ├── mkt-landing-page/         # Wiebe/Dry CRO frameworks
+│       └── mkt-local-seo/            # Programmatic county/city pages
 ├── AGENTS.md                 # This file
 └── HANDOFF.md                # Current task state + next steps
 ```
@@ -244,3 +259,49 @@ The `body.mobile-preview` class in styles.css is **separate** — it's a design-
 7. **Leaflet CDN SRI hashes** — `index.html` loads Leaflet 1.9.4 with `integrity=` SRI hashes. If you bump the version, update both the CSS and JS hashes or the browser will block the scripts.
 
 8. **Packet route returns HTML, not JSON** — `/api/packet/<id>` is the only route that returns `text/html`. Don't call it with `apiFetch()` (which expects JSON). The "Download PDF" button opens it in a new tab via `<a href=...>`, which is correct.
+
+---
+
+## Marketing System
+
+A router-style **marketing-director agent** lives under `.claude/`, with
+three specialized sub-skills. The agent is invoked via Claude Code, not
+via the Flask app — it produces artifacts (positioning docs, landing
+briefs, SEO briefs) into the `marketing/` directory.
+
+### How it works
+
+1. User asks Claude Code something marketing-flavored ("draft positioning",
+   "critique the hero", "build Ankeny SEO page").
+2. The director agent loads `marketing/BRAND.md` first (every call).
+3. Routes to one or more sub-skills based on the request.
+4. Each skill loads its own `KNOWLEDGE.md` (curated frameworks) +
+   `EXAMPLES.md` (swipe file) and writes output to `marketing/` per its
+   `OUTPUT_TEMPLATE.md`.
+
+### Skills shipped (Phase 1)
+
+| Skill | What it does | Anchored on |
+|---|---|---|
+| `mkt-positioning` | ICP, value prop, messaging pillars, anti-positioning | April Dunford (Obviously Awesome), JTBD |
+| `mkt-landing-page` | Hero variants, CRO critiques, landing copy | Joanna Wiebe, Harry Dry, 5-second test |
+| `mkt-local-seo` | Programmatic county/city pages, schema.org markup | Programmatic SEO + local SEO essentials |
+
+### Skills planned (not yet built)
+
+`mkt-lifecycle-email`, `mkt-ads-copy`, `mkt-onboarding-audit`,
+`mkt-analytics`. Routing table in the director agent already references
+them — when invoked, the agent will say "skill not built yet — want me
+to scaffold it?"
+
+### Critical rule
+
+`marketing/BRAND.md` is the **spine**. If a product fact changes
+(pricing, geography, ICP, voice, deadlines), update BRAND.md FIRST,
+then re-run downstream skills in this order:
+
+```
+mkt-positioning  →  mkt-landing-page  →  mkt-local-seo
+```
+
+Skipping a step means shipping copy built on a stale value prop.
