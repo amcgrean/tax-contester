@@ -1,7 +1,7 @@
 # Agent Handoff — Iowa Property Tax Comp Engine
 
-**Last updated:** 2026-05-26  
-**Session summary:** Marketing-director agent + 3 sub-skills (positioning, landing-page, local-SEO) shipped to main (PR #3). Foundation for all marketing artifacts now in place. Remaining product task is still Dallas County data; remaining marketing tasks are running the skills end-to-end and scaffolding Phase 2 skills.
+**Last updated:** 2026-06-04  
+**Session summary:** All three Phase 1 marketing skills run end-to-end (PR #5, merged). `marketing/positioning.md`, `marketing/landing/homepage.md`, and all five Tier 1 SEO briefs now exist. SEO briefs have placeholder data hooks — Neon queries are written but couldn't run from the cloud agent (port 5432 blocked). Aaron needs to run the combined query in `marketing/seo/_HUB_INDEX.md` locally and update the briefs. Homepage copy changes are spec'd in `marketing/landing/homepage.md` but not yet implemented in `screens.js`/`index.html`.
 
 ---
 
@@ -21,8 +21,11 @@
 | Neon PostgreSQL | LIVE | 173K parcels, 381K sales, all indexes applied |
 | Vercel production deploy | LIVE | Auto-deploys from GitHub `main` branch |
 | Mobile / responsive UI | LIVE | Tablet ≤768px + phone ≤480px breakpoints in styles.css |
-| Marketing-director agent | SCAFFOLDED | `.claude/agents/marketing-director.md` + 3 skills; no artifacts generated yet |
+| Marketing-director agent | LIVE | `.claude/agents/marketing-director.md` + 3 skills |
 | Marketing BRAND.md | LIVE | `marketing/BRAND.md` — source of truth; review before generating artifacts |
+| marketing/positioning.md | LIVE | Full Dunford 5-step positioning; value prop, pillars, anti-positioning |
+| marketing/landing/homepage.md | LIVE (spec) | Mode A critique + Mode B hero variants; implementation checklist for screens.js + index.html — NOT YET CODED |
+| marketing/seo/ (Tier 1) | LIVE (spec) | polk-county, des-moines, ankeny, urbandale, west-des-moines, waukee briefs + _HUB_INDEX.md — data hooks need real numbers from Neon |
 | Dallas County data | NOT STARTED | Scraper exists, never run against Neon |
 
 ---
@@ -124,23 +127,36 @@ Four files changed, zero DB migrations needed.
 
 ### Marketing (highest leverage — site has ~0 traffic today)
 
-**Move 1 (do first):** Have Aaron read `marketing/BRAND.md` end-to-end
-and fix anything wrong about the product, voice, ICP, or pricing.
-Everything downstream amplifies what's in that file.
+**Move 1 — DONE:** BRAND.md reviewed; positioning.md produced.
 
-**Move 2:** Run `mkt-positioning` to produce `marketing/positioning.md`.
-This unblocks the landing-page and SEO skills (they require it as input).
+**Move 2 — DONE:** `mkt-landing-page` critique + hero variants in
+`marketing/landing/homepage.md`. Open questions for Aaron:
+- Pick Variant A (audience+specificity) or B (deadline+loss) as default hero
+- Confirm brand name change: "Iowa Property Tax Comp Engine" → "Tax Contester" in topbar
+- Decide: hide the Admin tab from public nav?
+- Packet screenshot: use live `/api/packet/01004795950043` or sanitize?
 
-**Move 3:** Run `mkt-landing-page` against the current `web/templates/index.html`
-in Critique mode first. Then Generate mode for new hero variants. Ship
-the winning hero — this is the first concrete conversion move.
+**Move 3 — IMPLEMENT the homepage changes:**
+All edits are spec'd in `marketing/landing/homepage.md` (implementation checklist).
+Key changes in `web/static/screens.js` `renderSearch()`:
+- H1: "Is your Polk County assessment too high?"
+- Lede: "Check it against 381,000 real Polk & Dallas County sales..."
+- CTA: "Check my assessment" (not "Search")
+- Trust strip below CTA: "173,000 parcels · 381,000 sales · Iowa Code §441.37 · Free"
+And in `web/templates/index.html`: update `<title>`, `<meta description>`,
+`.brand-title`, `.brand-sub`.
 
-**Move 4:** Run `mkt-local-seo` for Tier 1 Polk cities (Des Moines,
-West Des Moines, Ankeny, Urbandale, Waukee). Each brief includes a
-Flask route + template plan. Implementing the pages is a separate
-engineering task — the brief is the spec.
+**Move 4 — Fill SEO data hooks:**
+Run the combined query in `marketing/seo/_HUB_INDEX.md` against Neon
+(port 5432 is blocked from the cloud agent — must run locally or from
+Neon console). Paste results back to the agent to update all six briefs.
 
-**Move 5 (separate PR):** Scaffold Phase 2 skills — `mkt-lifecycle-email`
+**Move 5 — Implement SEO pages:**
+Flask routes + `web/templates/city.html` template. Each city brief
+has the full spec. Publish order: `/polk-county` first, then all
+Tier 1 city pages simultaneously.
+
+**Move 6 (separate PR):** Scaffold Phase 2 skills — `mkt-lifecycle-email`
 (April seasonal sequences) and `mkt-ads-copy` (Google/Meta).
 
 ### Product
