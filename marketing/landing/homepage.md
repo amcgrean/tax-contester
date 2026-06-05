@@ -46,12 +46,15 @@ Key violations:
 
 - **Headline:** Is your Polk County assessment too high?
   _(44 chars — safe for 375px mobile)_
-- **Subhead:** Check it against 381,000 real Polk & Dallas County sales.
+- **Subhead:** Check it against 381,000 real Polk County sales.
   Free comp evidence, ready to file by April 30.
-  _(87 chars — wraps to 2 lines on mobile)_
+  _(79 chars — wraps to 2 lines on mobile)_
 - **CTA button:** Check my assessment →
 - **Visual:** Address search box (already built) — no stock photo; the tool IS the visual
-- **Trust strip (below CTA):** 173,000 parcels · 381,000 sales · Iowa Code §441.37 · Free
+- **Trust strip (below CTA):** 173,000 Polk parcels · 381,000 sales · Iowa Code §441.37 · Free
+
+> **Note:** Trust strip and subhead say "Polk County" only — Dallas County data is not yet
+> loaded (scraper not run). Update to "Polk + Dallas" the day Dallas data goes live.
 
 **5-second test against Variant A:**
 - What is this? A tool to check whether your Polk County property tax assessment is too high
@@ -225,7 +228,8 @@ All three answers are available within 5 seconds. Variant A passes.
   _(Keep the `<em>` wrapper around the county name for emphasis if desired)_
 - [ ] Replace lede paragraph:
   **Before:** `"Enter an address or parcel ID. We'll pull the latest assessment from the county's CAMA system and propose comparable sales within 0.75 mi."`
-  **After:** `"Check it against 381,000 real Polk & Dallas County sales. Free comp evidence, ready to file by April 30."`
+  **After:** `"Check it against 381,000 real Polk County sales. Free comp evidence, ready to file by April 30."`
+  _(Keep Polk-only until Dallas data loads — see note in Variant A above)_
 - [ ] Replace CTA button text: `"Search"` → `"Check my assessment"`
 - [ ] Update `placeholder` on `#search-input`:
   **Before:** `"e.g. 4823 Grand Ave, Des Moines · or · 010-12345-678-000"`
