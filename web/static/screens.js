@@ -116,13 +116,13 @@ function renderSearch(host) {
             <span class="pin" style="left:48%; top:54%"></span>
             <span class="pin" style="left:64%; top:38%"></span>
             <span class="pin" style="left:72%; top:62%"></span>
-            <span id="parcel-count">Polk + Dallas · loading…</span>
+            <span id="parcel-count">Polk County · loading…</span>
           </div>
           <div class="qstats" id="qstats">
             <div>
               <div class="qstat-label">Parcels</div>
               <div class="qstat-value tnum" id="stat-parcels">—</div>
-              <div class="qstat-sub">Polk + Dallas</div>
+              <div class="qstat-sub">Polk County (Dallas coming)</div>
             </div>
             <div>
               <div class="qstat-label">Recent sales</div>
@@ -137,7 +137,7 @@ function renderSearch(host) {
             <div>
               <div class="qstat-label">Protest window</div>
               <div class="qstat-value tnum">Apr 30</div>
-              <div class="qstat-sub">Polk &amp; Dallas boards</div>
+              <div class="qstat-sub">Polk County Board of Review</div>
             </div>
           </div>
         </div>
@@ -330,7 +330,7 @@ function renderSearch(host) {
     host.querySelector('#stat-ratio').textContent =
       s.median_av_ratio || '—';
     host.querySelector('#parcel-count').textContent =
-      `Polk + Dallas · ${s.total_properties ? s.total_properties.toLocaleString() : '?'} parcels`;
+      `Polk County · ${s.total_properties ? s.total_properties.toLocaleString() : '?'} parcels`;
   }).catch(() => {});
 }
 
@@ -896,7 +896,7 @@ function renderPacket(host) {
       </div>
       <div class="parcel-actions">
         <button class="btn" onclick="window.print()">${ICONS.print} Print</button>
-        <a class="btn btn-primary" href="/api/packet/${encodeURIComponent(parcelId)}" target="_blank">${ICONS.download} Download PDF</a>
+        <a class="btn btn-primary" href="/api/packet/${encodeURIComponent(parcelId)}" target="_blank" onclick="window.va && window.va('event', { name: 'Packet Download' })">${ICONS.download} Download PDF</a>
       </div>
     </div>
 

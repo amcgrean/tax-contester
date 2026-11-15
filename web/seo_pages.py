@@ -36,6 +36,26 @@ STATS = {
         "parcels": "14,126", "median_assessed": "$315,250", "median_sale": "$307,500",
         "sales_since_2024": "1,301", "ppsf": "$201", "pct_over": "13.6%", "ratio_n": "729",
     },
+    "johnston": {
+        "parcels": "7,853", "median_assessed": "$386,700", "median_sale": "$374,495",
+        "sales_since_2024": "662", "ppsf": "$211", "pct_over": "8.0%", "ratio_n": "363",
+    },
+    "clive": {
+        "parcels": "3,356", "median_assessed": "$370,200", "median_sale": "$360,750",
+        "sales_since_2024": "284", "ppsf": "$203", "pct_over": "16.8%", "ratio_n": "173",
+    },
+    "grimes": {
+        "parcels": "5,817", "median_assessed": "$339,400", "median_sale": "$341,000",
+        "sales_since_2024": "581", "ppsf": "$229", "pct_over": "9.9%", "ratio_n": "322",
+    },
+    "pleasant-hill": {
+        "parcels": "4,247", "median_assessed": "$308,500", "median_sale": "$300,000",
+        "sales_since_2024": "373", "ppsf": "$210", "pct_over": "13.5%", "ratio_n": "215",
+    },
+    "altoona": {
+        "parcels": "7,839", "median_assessed": "$299,500", "median_sale": "$315,000",
+        "sales_since_2024": "735", "ppsf": "$218", "pct_over": "7.9%", "ratio_n": "429",
+    },
     "urbandale": {
         "parcels": "11,434", "median_assessed": "$304,950", "median_sale": "$300,000",
         "sales_since_2024": "1,054", "ppsf": "$202", "pct_over": "11.9%", "ratio_n": "624",
@@ -87,10 +107,9 @@ CITIES = {
     "ankeny": {
         "name": "Ankeny",
         "title": "Ankeny Property Tax Appeal {year} | Free Evidence Packet",
-        "description": ("Ankeny has Polk County's highest median assessment ($330,400). "
-                        "Check yours free against real Ankeny sales before the April 30 "
-                        "protest deadline."),
-        "hook_head": "Ankeny has the highest median assessment in Polk County: {median_assessed}.",
+        "description": ("Ankeny has the highest median assessment of Polk's four largest cities "
+                        "($330,400). Check yours free against real Ankeny sales before April 30."),
+        "hook_head": "Ankeny has the highest median assessment of Polk County's four largest cities: {median_assessed}.",
         "hook_body": (
             "Across {parcels} Ankeny homes, assessments track sale prices closely. The "
             "typical home that sold in 2025 was assessed at about 99.5% of its sale price, "
@@ -117,16 +136,14 @@ CITIES = {
     "west-des-moines": {
         "name": "West Des Moines",
         "title": "West Des Moines Property Tax Appeal {year} | Free Packet",
-        "description": ("1 in 10 West Des Moines homes is assessed above $578,700, the "
-                        "highest top end in Polk County. Check yours free before the "
-                        "April 30 protest deadline."),
-        "hook_head": "West Des Moines has the most expensive top end in Polk County.",
+        "description": ("1 in 10 West Des Moines homes is assessed above $578,700, the top "
+                        "end of Polk's four largest cities. Check yours free before April 30."),
+        "hook_head": "West Des Moines has the most expensive top end of Polk County's four largest cities.",
         "hook_body": (
             "One in ten West Des Moines homes is assessed above $578,700, the highest 90th "
-            "percentile of any Polk city. And {pct_over} of WDM homes that sold in 2025 "
+            "percentile among Des Moines, Ankeny, Urbandale and WDM. And {pct_over} of WDM homes that sold in 2025 "
             "carry a 2026 assessment more than 10% above their sale price. On a $578,700 "
-            "assessment, a 10% error is $57,870 of value, the biggest dollar stakes in "
-            "the county."),
+            "assessment, a 10% error is $57,870 of value."),
         "why_head": "Part of West Des Moines is in Dallas County",
         "why_body": (
             "West Des Moines crosses the Polk–Dallas county line. Our comparable-sales data "
@@ -144,12 +161,143 @@ CITIES = {
         ],
         "neighbors": ["des-moines", "urbandale"],
     },
+    "johnston": {
+        "name": "Johnston",
+        "title": "Johnston Property Tax Appeal {year} | Free Evidence Packet",
+        "description": ("Johnston's median assessment is $386,700, the highest of any Polk "
+                        "city over 5,000 homes. Check yours free before the April 30 deadline."),
+        "hook_head": "Johnston has the highest median assessment of any Polk County city with more than 5,000 homes: {median_assessed}.",
+        "hook_body": (
+            "Across {parcels} Johnston homes, the median 2026 assessment is {median_assessed}, "
+            "and 1 in 10 is assessed above $669,000. Assessments mostly track sales here: "
+            "{pct_over} of homes sold in 2025 were assessed more than 10% above their sale "
+            "price. At these values, though, even a small percentage error is real money."),
+        "why_head": "Small percentages, big numbers",
+        "why_body": (
+            "On a $386,700 home, a 5% over-assessment is about $19,000 of value. The comp "
+            "engine compares your home to recent Johnston sales of similar size, age and "
+            "neighborhood, drawn from {sales_since_2024} arms-length sales since 2024."),
+        "faq": [
+            ("Johnston assessments mostly match sale prices. Is it worth checking?",
+             "It takes two minutes, and the tool tells you if your assessment is fair. If it "
+             "is, there's nothing to file. If it isn't, you have the evidence ready."),
+            ("Where do Johnston homeowners file?",
+             "With the Polk County Board of Review. Johnston homes are assessed by the Polk "
+             "County Assessor."),
+        ],
+        "neighbors": ["grimes", "urbandale"],
+    },
+    "clive": {
+        "name": "Clive",
+        "title": "Clive Property Tax Appeal {year} | Free Evidence Packet",
+        "description": ("16.8% of Clive homes sold in 2025 are assessed 10%+ above their sale "
+                        "price, second only to Des Moines. Check yours free before April 30."),
+        "hook_head": "Clive has the second-highest over-assessment rate in Polk County.",
+        "hook_body": (
+            "Of {ratio_n} Clive homes that sold in 2025, {pct_over} carry a 2026 assessment "
+            "more than 10% above the sale price. Only Des Moines is higher. Clive homes are "
+            "also expensive: the median assessment is {median_assessed}, and 1 in 10 is "
+            "assessed above $678,000, the highest top end of any city we cover."),
+        "why_head": "Part of Clive is in Dallas County",
+        "why_body": "Clive crosses the Polk–Dallas county line. Our comparable-sales data covers "
+            "the Polk County side ({parcels} homes) today. If your home is on the Dallas "
+            "side, the search won't find it yet, and your protest goes to the Dallas County "
+            "Board of Review (same April 30 deadline).",
+        "faq": [
+            ("Clive is in two counties. Which Board of Review do I file with?",
+             "It depends on your parcel. Polk County parcels go to the Polk County Board of "
+             "Review and Dallas County parcels to the Dallas County Board. Both deadlines "
+             "are April 30."),
+            ("Why are Clive homes over-assessed more often?",
+             "We can't say from the data alone. What we can show is how your own assessment "
+             "compares to recent sales of similar homes nearby."),
+        ],
+        "neighbors": ["west-des-moines", "urbandale"],
+    },
+    "grimes": {
+        "name": "Grimes",
+        "title": "Grimes Property Tax Appeal {year} | Free Evidence Packet",
+        "description": ("Nearly half of Grimes homes were built since 2010, the newest of any "
+                        "large Polk city. Compare yours to recent sales, free, before April 30."),
+        "hook_head": "Grimes has the newest housing of any Polk County city with more than 5,000 homes: 47% were built since 2010.",
+        "hook_body": (
+            "The median Grimes home was built in 2008, and {parcels} homes carry a median "
+            "2026 assessment of {median_assessed}. Grimes homes also sell for {ppsf} a square "
+            "foot, near the top of the county. {pct_over} of homes sold in 2025 were assessed "
+            "more than 10% above their sale price."),
+        "why_head": "Part of Grimes is in Dallas County",
+        "why_body": "Grimes crosses the Polk–Dallas county line. Our comparable-sales data covers "
+            "the Polk County side ({parcels} homes) today. If your home is on the Dallas "
+            "side, the search won't find it yet, and your protest goes to the Dallas County "
+            "Board of Review (same April 30 deadline).",
+        "faq": [
+            ("My Grimes home is only a few years old. Can I protest?",
+             "Yes. Any assessment can be protested if comparable sales show it's above market "
+             "value. The comp engine compares your home to recent sales of similar-age homes."),
+            ("Grimes is in two counties. Where do I file?",
+             "Polk County parcels go to the Polk County Board of Review and Dallas County "
+             "parcels to the Dallas County Board. Both deadlines are April 30."),
+        ],
+        "neighbors": ["johnston", "urbandale"],
+    },
+    "pleasant-hill": {
+        "name": "Pleasant Hill",
+        "title": "Pleasant Hill Property Tax Appeal {year} | Free Packet",
+        "description": ("Pleasant Hill homes are over-assessed almost twice as often as "
+                        "neighboring Altoona and Ankeny. Check yours free before April 30."),
+        "hook_head": "Pleasant Hill homes are over-assessed almost twice as often as their east-side neighbors.",
+        "hook_body": (
+            "{pct_over} of Pleasant Hill homes sold in 2025 carry a 2026 assessment more than "
+            "10% above their sale price. In neighboring Altoona it's 7.9%, and in Ankeny "
+            "7.1%. Pleasant Hill has {parcels} homes with a median assessment of "
+            "{median_assessed}."),
+        "why_head": "Comps from Pleasant Hill, not the east side as a whole",
+        "why_body": (
+            "Pleasant Hill homes are compared to recent sales nearby with similar size and "
+            "age. Its {sales_since_2024} arms-length sales since 2024 give the engine a "
+            "workable local pool, and it only widens the search if it needs to."),
+        "faq": [
+            ("Why are Pleasant Hill assessments off more often?",
+             "The data shows the gap but not the reason. Your own comp check tells you whether "
+             "your home is one of them."),
+            ("Where do Pleasant Hill homeowners file?",
+             "With the Polk County Board of Review. Pleasant Hill homes are assessed by the "
+             "Polk County Assessor."),
+        ],
+        "neighbors": ["altoona", "des-moines"],
+    },
+    "altoona": {
+        "name": "Altoona",
+        "title": "Altoona Property Tax Appeal {year} | Free Evidence Packet",
+        "description": ("About 1 in 3 Altoona homes were built since 2010, and assessments track "
+                        "sales closely. Check yours free before the April 30 deadline."),
+        "hook_head": "About 1 in 3 Altoona homes were built since 2010, and assessments here track sale prices closely.",
+        "hook_body": (
+            "Altoona has {parcels} homes with a median 2026 assessment of {median_assessed}. "
+            "Only {pct_over} of homes sold in 2025 "
+            "were assessed more than 10% above their sale price. Two minutes with real comps "
+            "tells you whether yours is one of them."),
+        "why_head": "A deep pool of recent sales",
+        "why_body": (
+            "With {sales_since_2024} arms-length sales since 2024, Altoona has one of the "
+            "deeper comp pools among Polk suburbs. The engine matches on size, age and "
+            "neighborhood before it looks anywhere else."),
+        "faq": [
+            ("Altoona assessments mostly match sales. Should I bother checking?",
+             "It's free and takes two minutes. If your assessment is fair, the tool says so "
+             "and there's nothing to file."),
+            ("Where do Altoona homeowners file?",
+             "With the Polk County Board of Review. Altoona homes are assessed by the Polk "
+             "County Assessor."),
+        ],
+        "neighbors": ["pleasant-hill", "ankeny"],
+    },
     "urbandale": {
         "name": "Urbandale",
         "title": "Urbandale Property Tax Appeal {year} | Free Evidence Packet",
-        "description": ("About 65% of Urbandale homes were built 1960–1999. Compare yours "
+        "description": ("About two-thirds of Urbandale homes were built 1960–1999. Compare yours "
                         "to same-era sales, free, before the April 30 Polk County deadline."),
-        "hook_head": "About 65% of Urbandale homes were built between 1960 and 1999.",
+        "hook_head": "About two-thirds of Urbandale homes were built between 1960 and 1999.",
         "hook_body": (
             "Urbandale's {parcels} homes are mostly split-levels, ranches and two-stories "
             "from the 1960s through the 1990s. The median 2026 assessment is "
@@ -173,7 +321,8 @@ CITIES = {
     },
 }
 
-CITY_ORDER = ["des-moines", "ankeny", "west-des-moines", "urbandale"]
+CITY_ORDER = ["des-moines", "ankeny", "west-des-moines", "urbandale",
+              "johnston", "altoona", "grimes", "pleasant-hill", "clive"]
 
 
 def protest_window(today=None):

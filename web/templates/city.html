@@ -17,6 +17,9 @@
 <script type="application/ld+json">
 {{ jsonld | safe }}
 </script>
+<!-- Vercel Web Analytics (cookieless). Turn on in Vercel → project → Analytics. -->
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 
@@ -95,7 +98,7 @@
         <span>{{ s.parcels }} homes · median {{ s.median_assessed }}</span></a></li>
       {% endfor %}
     </ul>
-    <p class="fine">Waukee and the Dallas County side of West Des Moines aren't covered yet. Dallas County data is coming.</p>
+    <p class="fine">Waukee and the Dallas County sides of West Des Moines, Clive and Grimes aren't covered yet. Dallas County data is coming.</p>
   </section>
 
   <section>
@@ -156,7 +159,10 @@
   var timer, items = [], active = -1;
 
   function close() { list.hidden = true; list.innerHTML = ''; items = []; active = -1; }
-  function go(s) { location.href = '/?parcel=' + encodeURIComponent(s.parcel_id) + '#parcel'; }
+  function go(s) {
+    if (window.va) window.va('event', { name: 'City Page Search', data: { page: '{{ slug }}' } });
+    location.href = '/?parcel=' + encodeURIComponent(s.parcel_id) + '#parcel';
+  }
   function paint() {
     Array.prototype.forEach.call(list.children, function (li, i) {
       li.setAttribute('aria-selected', i === active ? 'true' : 'false');
