@@ -31,10 +31,17 @@ _Implements value prop from: `marketing/positioning.md`_
 > homes nearby actually sold for. **Waukee is where the comp gap is
 > most likely to show up in 2026.**
 
-**Special note — Dallas County data not yet loaded:**
-> Waukee straddles Polk and Dallas counties. The comp engine is live
-> for Polk County parcels only. Dallas County Waukee parcels will see
-> the "Dallas coming soon" callout (see implementation notes below).
+> 🛑 **BLOCKED (2026-11-15): do not publish this page yet.** The database
+> has **zero** Waukee parcels under either county. Waukee is overwhelmingly
+> in Dallas County, and the Polk data has no parcel labeled Waukee. This
+> brief assumed a "Polk side is live" path that doesn't exist, so the address
+> search would return nothing for every Waukee visitor.
+>
+> **Until Dallas loads:** fold Waukee into the `/dallas-county` lead-capture
+> hub (deadline + Board of Review info + "notify me" email capture). Don't
+> show a search widget. **After Dallas loads:** rewrite this brief as a
+> Dallas city page and re-pull its hook. Remove the `/waukee` link from the
+> Polk hub city grid. Source: `_DATA_2026.md`.
 
 **SQL to check Polk-side Waukee coverage:**
 ```sql

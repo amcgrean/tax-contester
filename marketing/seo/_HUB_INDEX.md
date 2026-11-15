@@ -10,11 +10,11 @@ _Run this sanity check before publishing any city page: if two rows look identic
 | Slug | Type | Unique data hook | Differentiation angle |
 |---|---|---|---|
 | `/polk-county` | county-hub | 173K parcels + 381K sales + "largest county in Iowa" volume hook | Volume + hub authority; no city-specific angle |
-| `/des-moines` | city | Widest neighborhood assessment spread in Polk County — valuation gap varies $120K by neighborhood | Variance across neighborhoods; subdividable later |
-| `/ankeny` | city | New construction (post-2020) — assessments often based on cost approach vs market sales comps | Growth city; new-build assessment lag |
-| `/urbandale` | city | 1960s–1990s housing stock; year-built filter is the key variable; comp quality anchored to era | Older housing stock; age-sensitive comp matching |
-| `/west-des-moines` | city | Highest median home values in Polk → highest dollar savings from a protest (10% over on $450K = $1,350/yr) | Dollar savings math; high-value suburb |
-| `/waukee` | city (split) | Fast growth → assessment drift for new builds; **honest Dallas split callout**; Polk side live, Dallas coming | Growth city + county-split transparency |
+| `/des-moines` | city | 17.2% of 2025 sales assessed >10% above sale price (highest in Tier 1); 222 neighborhoods, medians $144K–$418K | Highest over-assessment rate + neighborhood spread |
+| `/ankeny` | city | Highest Polk median assessment ($330,400); lowest over-assessment rate (7.1%) | High values, check before you file |
+| `/urbandale` | city | ~65% of homes built 1960–1999; 11.9% over-assessed >10% | Deep same-era comp pool |
+| `/west-des-moines` | city | Highest p90 assessment in Polk ($578,700); 13.6% over-assessed >10% | Biggest dollar stakes at the top end |
+| `/waukee` | city | 🛑 **BLOCKED** — 0 Waukee parcels in DB; fold into `/dallas-county` lead capture until Dallas loads | — |
 
 **Duplicate check:** Each row has a structurally different hook. No two are interchangeable. ✓
 
@@ -58,6 +58,10 @@ is built.
 ---
 
 ## Data queries needed before publish
+
+> **Done 2026-11-15.** Real numbers are in `_DATA_2026.md` and in each brief's
+> hook. The queries below are kept for the March refresh. Use exact
+> `city = '...'` matches, not `ILIKE`.
 
 Run these against Neon and fill the `[VERIFY]` placeholders in each city brief:
 

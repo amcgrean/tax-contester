@@ -24,10 +24,15 @@ _Implements value prop from: `marketing/positioning.md`_
 
 ## Unique data hook
 
-> Des Moines has more assessed parcels than any other city in Polk County
-> — and the widest spread between neighborhoods. The same square footage
-> can carry a $120,000 difference in assessed value depending on which
-> side of Fleur Drive you're on. That spread is where assessments go wrong.
+> **About 1 in 6 Des Moines homes that sold in 2025 carry a 2026 assessment
+> more than 10% above their own sale price** (17.2% of 3,904 sales), the
+> highest rate of any Tier 1 city. Des Moines also has 71,053 homes across
+> 222 neighborhoods, and typical neighborhood medians range from $143,790
+> to $417,820. Neighborhood-matched comps matter here more than anywhere else.
+
+_Source: `_DATA_2026.md` (pulled 2026-11-15). The SQL below is the original
+draft. Note that `ILIKE '%des moines%'` also matches West Des Moines, so use
+`city = 'DES MOINES'`._
 
 **SQL to pull the real numbers:**
 ```sql

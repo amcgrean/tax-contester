@@ -74,7 +74,7 @@ When monetization arrives, update this section and re-run
 ## Core differentiators (the things we say uniquely)
 
 1. **Real county-level data.** Polk CAMA + recorder sales, not generic
-   Zillow estimates. 173K parcels, 381K arms-length sales.
+   Zillow estimates. 173K parcels, 381K recorded sales (245K flagged arms-length).
 2. **Comp engine, not a complaint form.** 4-pass weighted scoring explains
    *why* an assessment is off, not just that it is.
 3. **Print-ready 2-page packet.** Cites Iowa Code §441.37. Ready to file

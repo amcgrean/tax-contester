@@ -24,11 +24,18 @@ _Implements value prop from: `marketing/positioning.md`_
 
 ## Unique data hook
 
-> Ankeny is one of the fastest-growing cities in Iowa. New construction
-> assessments — especially homes built in 2021–2024 — often reflect
-> peak construction costs rather than current market comparable sales.
-> If your Ankeny home was built after 2020, your assessment is worth
-> a close look.
+> **Ankeny has the highest median 2026 assessment in Polk County: $330,400**
+> across 28,239 homes. Assessments here track sale prices closely (median
+> assessment-to-sale ratio 0.995), and about 7% of 2025 sales carry an
+> assessment more than 10% above the sale price. That's the lowest rate of
+> the Tier 1 cities, so check before you file. A 2-minute comp check tells
+> you whether you're in that 7%.
+
+> ⚠️ **Hook changed 2026-11-15.** The original "new construction is
+> over-assessed" angle is **not supported by the data**. Post-2020 Ankeny homes
+> are over-assessed by >10% *less* often (4.5%) than older ones (8.1%). The
+> new-construction H2 and outline bullet were removed; the FAQ about new homes
+> stays because the question is still legitimate. Source: `_DATA_2026.md`.
 
 **SQL to pull the real numbers:**
 ```sql
@@ -71,10 +78,8 @@ GROUP BY era;
 ### H1: Ankeny Property Tax Appeal 2026
 
 ### H2: Is your Ankeny assessment too high?
-- Ankeny's growth rate means assessment data lags market reality —
-  sometimes in the homeowner's favor, sometimes not.
-- Unique hook: new-construction assessment variance (fill from SQL above)
-- If your Ankeny home was built after 2020, this is especially worth checking
+- Unique hook: highest median assessment in Polk ($330,400); ~7% of 2025 sales
+  assessed >10% above sale price. Check before you file.
 - Embedded address search widget
 
 ### H2: The April 30 deadline
@@ -87,14 +92,6 @@ GROUP BY era;
   2-page packet citing Iowa Code §441.37
 - Comps scored: sqft, year built, neighborhood, recency — not just
   "homes near you"
-
-### H2: New construction and Ankeny assessments
-- Ankeny issued more single-family building permits than most Iowa cities
-  from 2020–2024
-- New builds often assessed high based on cost approach, not the sales
-  approach the Board prefers
-- The comp engine compares your new build against recent sales of similar
-  new construction in Ankeny — the most accurate comparison available
 
 ### H2: What the Polk County Board of Review needs to see
 - Closed sales (not Zillow, not asking prices, not builder quotes)
@@ -205,9 +202,9 @@ Anchor text variations (from neighbor pages):
 
 - **Flask route:** `@app.route("/ankeny")` — renders `web/templates/city.html`
 - **Template file:** `web/templates/city.html` (shared across cities, parameterized)
-- **Data source for unique hook:** the construction-era breakdown SQL above;
-  the "post-2020 new construction" angle is Ankeny's differentiator — don't
-  use this hook on Des Moines or Urbandale briefs
+- **Data source for unique hook:** `_DATA_2026.md`. Ankeny's differentiator
+  is the highest median assessment plus the lowest over-assessment rate. The
+  new-construction angle was disproved, so don't revive it.
 - **Refresh cadence:** mid-March each year; the new-construction hook holds
   across years — just update the year range (2021–2025, etc.) and re-run SQL
 

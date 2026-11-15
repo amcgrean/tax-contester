@@ -25,7 +25,7 @@
 | Marketing BRAND.md | LIVE | `marketing/BRAND.md` — source of truth; review before generating artifacts |
 | marketing/positioning.md | LIVE | Full Dunford 5-step positioning; value prop, pillars, anti-positioning |
 | marketing/landing/homepage.md | LIVE (spec) | Mode A critique + Mode B hero variants; implementation checklist for screens.js + index.html — NOT YET CODED |
-| marketing/seo/ (Tier 1) | LIVE (spec) | polk-county, des-moines, ankeny, urbandale, west-des-moines, waukee briefs + _HUB_INDEX.md — data hooks need real numbers from Neon |
+| marketing/seo/ (Tier 1) | LIVE (spec) | Real data hooks filled 2026-11-15 (`_DATA_2026.md`); Waukee blocked (0 parcels); pages not yet built |
 | Dallas County data | NOT STARTED | Scraper exists, never run against Neon |
 
 ---
@@ -146,10 +146,18 @@ Key changes in `web/static/screens.js` `renderSearch()`:
 And in `web/templates/index.html`: update `<title>`, `<meta description>`,
 `.brand-title`, `.brand-sub`.
 
-**Move 4 — Fill SEO data hooks:**
-Run the combined query in `marketing/seo/_HUB_INDEX.md` against Neon
-(port 5432 is blocked from the cloud agent — must run locally or from
-Neon console). Paste results back to the agent to update all six briefs.
+**Move 4 — DONE (2026-11-15):** SEO data hooks filled from Neon. Numbers are in
+`marketing/seo/_DATA_2026.md`. **Agents can query Neon over HTTPS** (POST to
+`https://<neon-host>/sql` with a `Neon-Connection-String` header), so port 5432
+being blocked doesn't matter. The data changed three briefs:
+- Ankeny: the new-construction angle was wrong (newer homes are over-assessed
+  *less*), so the hook was rewritten
+- West Des Moines: not the highest median (Ankeny is), so the hook now leads
+  with the top end (p90 $578,700)
+- **Waukee: 0 parcels in the DB, page BLOCKED** until Dallas loads; fold into
+  the `/dallas-county` lead capture
+- No tax-rate data (`gross_taxes_due` empty), so no dollar-savings claims in
+  copy
 
 **Move 5 — Implement SEO pages:**
 Flask routes + `web/templates/city.html` template. Each city brief
