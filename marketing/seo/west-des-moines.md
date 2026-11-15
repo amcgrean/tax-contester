@@ -25,10 +25,17 @@ _Implements value prop from: `marketing/positioning.md`_
 
 ## Unique data hook
 
-> West Des Moines has among the highest median home values in Polk County.
-> That matters for protests: a 10% over-assessment on a $450,000 home
-> means a $45,000 valuation error — and roughly $1,350/yr in excess taxes
-> at a typical Polk tax rate. The math for protesting is clearest here.
+> **West Des Moines has the most expensive top end in Polk County: 1 in 10
+> homes is assessed above $578,700**, the highest 90th percentile of any
+> Polk city. And 13.6% of WDM homes sold in 2025 carry a 2026 assessment more
+> than 10% above their sale price. On a $578,700 assessment, a 10% error is
+> $57,870 of value, the biggest dollar stakes in the county.
+
+> ⚠️ **Corrected 2026-11-15.** WDM does *not* have the highest median
+> (WDM $315,250 vs Ankeny $330,400), so lead with the top end, not the median.
+> Don't publish a dollar *tax* savings figure: the DB has no tax-rate data,
+> and the original "$1,350/yr" assumed a 3% rate on assessed value, which
+> ignores Iowa's residential rollback. Source: `_DATA_2026.md`.
 
 **SQL to pull the real numbers:**
 ```sql

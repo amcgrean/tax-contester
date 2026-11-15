@@ -25,12 +25,16 @@ _Implements value prop from: `marketing/positioning.md`_
 
 ## Unique data hook
 
-> Urbandale's housing stock skews toward homes built in the 1960s–1990s:
-> split-levels, raised ranches, and brick colonials. Older homes have the
-> most assessment variance — age and condition differences are hard to
-> capture in a mass-appraisal model. The comp engine filters by year
-> built (±15 years), which is exactly where Urbandale assessments tend
-> to drift.
+> **About 65% of Urbandale's 11,434 homes were built between 1960 and 1999**
+> (largest decade: the 1990s, with 2,222 homes). The median 2026 assessment is
+> $304,950, and 11.9% of homes sold in 2025 carry an assessment more than 10%
+> above their sale price. With that many same-era homes, the comp engine's
+> ±15-year age filter finds close matches. A 1974 split-level gets compared
+> to other 1960s–80s homes, not 2020 builds.
+
+_Source: `_DATA_2026.md` (pulled 2026-11-15). The data doesn't show that
+older homes have more variance, so don't claim it. The defensible point is
+comp quality from a deep same-era pool._
 
 **SQL to pull the real numbers:**
 ```sql

@@ -95,7 +95,7 @@ Link grid to all Tier 1 + Tier 2 city pages:
 - [West Des Moines](/west-des-moines)
 - [Ankeny](/ankeny)
 - [Urbandale](/urbandale)
-- [Waukee](/waukee)
+- Waukee: not in Polk data, so link to `/dallas-county` once that hub ships
 - [Clive](/clive) _(coming soon — Tier 2)_
 - [Johnston](/johnston) _(coming soon — Tier 2)_
 - [Altoona](/altoona) _(coming soon — Tier 2)_
@@ -200,7 +200,7 @@ Link grid to all Tier 1 + Tier 2 city pages:
 ## Internal links
 
 - **Up:** `/` (homepage)
-- **Down:** `/des-moines`, `/ankeny`, `/urbandale`, `/west-des-moines`, `/waukee`
+- **Down:** `/des-moines`, `/ankeny`, `/urbandale`, `/west-des-moines`
 - **Down (guides):** `/guide/how-to-appeal-property-tax-iowa`, `/guide/iowa-code-441-37-explained`
 
 Anchor text variations from external pages:

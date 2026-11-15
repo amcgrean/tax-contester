@@ -36,7 +36,7 @@ Google and matches the exact job: show up to the Board with something real.
 
 ## Unique attributes
 
-1. Official Polk CAMA + recorder sales (173K parcels, 381K arms-length
+1. Official Polk CAMA + recorder sales (173K parcels, 381K recorded sales, 245K arms-length
    sales) — not estimates, not scraped from a listing site
 2. 4-pass weighted comp scoring: sqft ±20%, age ±15 yrs, same neighborhood
    first, sale recency weighted — matches your house, not the nearest
@@ -87,7 +87,7 @@ recorded sales of comparable homes. Tax Contester pulls from the same
 official Polk CAMA and recorder data the Board uses.
 
 - Proof: 173K Polk parcels from official county CAMA data
-- Proof: 381K arms-length sales from the Polk County recorder
+- Proof: 381K recorded sales from the Polk County recorder (245K flagged arms-length)
 - Proof: Comps are filtered for arms-length, recency (24–36 months),
   and matching property class — the same filters the Board applies
 
