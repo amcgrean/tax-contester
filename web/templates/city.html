@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>{{ title }}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="{{ description }}" />
+<link rel="canonical" href="{{ canonical }}" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="{{ title }}" />
+<meta property="og:description" content="{{ description }}" />
+<meta property="og:url" content="{{ canonical }}" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:wght@400;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/static/seo.css" />
+<script type="application/ld+json">
+{{ jsonld | safe }}
+</script>
+</head>
+<body>
+
+<header class="seo-top">
+  <a class="seo-brand" href="/">Tax Contester</a>
+  <span class="seo-top-sub">Free property tax protest evidence · Polk County, Iowa</span>
+</header>
+
+<main class="seo-main">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/">Home</a> ›
+    {% if kind == 'city' %}<a href="/polk-county">Polk County</a> › <span>{{ name }}</span>
+    {% else %}<span>Polk County</span>{% endif %}
+  </nav>
+
+  <h1>{{ h1 }}</h1>
+
+  {% if kind == 'city' %}
+  <p class="lede"><strong>{{ hook_head }}</strong></p>
+  <section class="search-card" aria-labelledby="check-h">
+    <h2 id="check-h">Check {% if kind == 'city' %}your {{ name }} assessment{% else %}your assessment{% endif %}</h2>
+    <form class="seo-search" onsubmit="return false;" role="search">
+      <label class="sr-only" for="addr">Your address</label>
+      <input id="addr" type="text" autocomplete="off"
+             placeholder="Your address, e.g. 4823 Grand Ave" />
+      <ul id="addr-list" role="listbox" hidden></ul>
+    </form>
+    <p class="fine">Free. No account. Polk County homes only for now. Dallas County is coming.</p>
+  </section>
+  <p>{{ hook_body }}</p>
+  {% else %}
+  <p class="lede"><strong>{{ county_stats.parcels }} Polk County homes. {{ county_stats.sales }} recorded sales. One deadline: April 30.</strong></p>
+  <section class="search-card" aria-labelledby="check-h">
+    <h2 id="check-h">Check {% if kind == 'city' %}your {{ name }} assessment{% else %}your assessment{% endif %}</h2>
+    <form class="seo-search" onsubmit="return false;" role="search">
+      <label class="sr-only" for="addr">Your address</label>
+      <input id="addr" type="text" autocomplete="off"
+             placeholder="Your address, e.g. 4823 Grand Ave" />
+      <ul id="addr-list" role="listbox" hidden></ul>
+    </form>
+    <p class="fine">Free. No account. Polk County homes only for now. Dallas County is coming.</p>
+  </section>
+  <p>Polk County is Iowa's largest county by population and assessed value. Every
+  spring the assessor sends a new value for every home, and the Board of Review hears
+  protests from April 2 to April 30. If you think your assessment is too high, you
+  need comparable sales, not opinions. This tool finds them for free.</p>
+  {% endif %}
+
+
+  <aside class="deadline {% if window.open %}is-open{% endif %}">
+    {% if window.open %}
+      <strong>The protest window is open.</strong> {{ window.days_to_end }} day{{ '' if window.days_to_end == 1 else 's' }} left to file with the Polk County Board of Review (deadline April 30, {{ window.year }}).
+    {% else %}
+      <strong>Next protest window: April 2–30, {{ window.year }}.</strong> Assessment notices arrive in early April, and you'll have 30 days to file.
+    {% endif %}
+  </aside>
+
+  {% if kind == 'city' %}
+  <section>
+    <h2>{{ why_head }}</h2>
+    <p>{{ why_body }}</p>
+    <dl class="stats">
+      <div><dt>Homes</dt><dd>{{ stats.parcels }}</dd></div>
+      <div><dt>Median 2026 assessment</dt><dd>{{ stats.median_assessed }}</dd></div>
+      <div><dt>Median sale since 2024</dt><dd>{{ stats.median_sale }}</dd></div>
+      <div><dt>Arms-length sales since 2024</dt><dd>{{ stats.sales_since_2024 }}</dd></div>
+    </dl>
+    <p class="fine">Polk County assessor and recorder data, residential parcels, as of {{ data_as_of }}.</p>
+  </section>
+  {% else %}
+  <section>
+    <h2>Polk County cities</h2>
+    <ul class="city-grid">
+      {% for slug, cname, s in cities %}
+      <li><a href="/{{ slug }}"><strong>{{ cname }}</strong>
+        <span>{{ s.parcels }} homes · median {{ s.median_assessed }}</span></a></li>
+      {% endfor %}
+    </ul>
+    <p class="fine">Waukee and the Dallas County side of West Des Moines aren't covered yet. Dallas County data is coming.</p>
+  </section>
+
+  <section>
+    <h2>How the Polk County Board of Review works</h2>
+    <p>The Board of Review is separate from the assessor's office. It reviews written
+    protests filed April 2–30 and rules by May 31. Under Iowa Code §441.37, the most
+    common ground is that your assessment is higher than your home's market value. The
+    Board looks at closed sales of comparable homes. It won't accept Zillow estimates or
+    asking prices.</p>
+  </section>
+  {% endif %}
+
+  <section>
+    <h2>How the evidence packet works</h2>
+    <ol class="steps">
+      <li><strong>Find your home.</strong> Type your address. The search covers every Polk County parcel.</li>
+      <li><strong>See your comps.</strong> Recent arms-length sales scored against your home's size, age and neighborhood.</li>
+      <li><strong>Download your packet.</strong> A 2-page, print-ready packet citing Iowa Code §441.37, ready to file with the Board of Review.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>What this is not</h2>
+    <ul>
+      <li><strong>Not a tax attorney.</strong> We don't represent you at the hearing.</li>
+      <li><strong>Not a guarantee.</strong> The Board of Review can rule against you.</li>
+      <li><strong>Not for commercial</strong> or income-valued property.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Questions{% if kind == 'city' %} from {{ name }} homeowners{% endif %}</h2>
+    {% for q, a in faq %}
+    <details>
+      <summary>{{ q }}</summary>
+      <p>{{ a }}</p>
+    </details>
+    {% endfor %}
+  </section>
+
+  <section class="links">
+    {% if kind == 'city' %}
+    <p>More Polk County: <a href="/polk-county">Polk County deadline and Board of Review guide</a>
+      {% for slug, nname in neighbors %} · <a href="/{{ slug }}">check {{ nname }} comps</a>{% endfor %}</p>
+    {% endif %}
+    <p>Official source: <a href="{{ assessor_url }}" rel="noopener">Polk County Assessor</a></p>
+  </section>
+</main>
+
+<footer class="seo-foot">
+  Informational only. Not legal or tax advice. Built by an Iowan, free to use.
+</footer>
+
+<script>
+(function () {
+  var input = document.getElementById('addr');
+  var list = document.getElementById('addr-list');
+  var timer, items = [], active = -1;
+
+  function close() { list.hidden = true; list.innerHTML = ''; items = []; active = -1; }
+  function go(s) { location.href = '/?parcel=' + encodeURIComponent(s.parcel_id) + '#parcel'; }
+  function paint() {
+    Array.prototype.forEach.call(list.children, function (li, i) {
+      li.setAttribute('aria-selected', i === active ? 'true' : 'false');
+    });
+  }
+
+  input.addEventListener('input', function () {
+    clearTimeout(timer);
+    var q = input.value.trim();
+    if (q.length < 2) { close(); return; }
+    timer = setTimeout(function () {
+      fetch('/api/autocomplete?county=polk&q=' + encodeURIComponent(q))
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          items = d.suggestions || [];
+          active = -1;
+          list.innerHTML = '';
+          if (!items.length) {
+            var li = document.createElement('li');
+            li.className = 'empty';
+            li.textContent = 'No Polk County match yet. Keep typing your street address.';
+            list.appendChild(li);
+          }
+          items.forEach(function (s) {
+            var li = document.createElement('li');
+            li.setAttribute('role', 'option');
+            li.textContent = s.label;
+            li.addEventListener('mousedown', function (e) { e.preventDefault(); go(s); });
+            list.appendChild(li);
+          });
+          list.hidden = false;
+        })
+        .catch(close);
+    }, 180);
+  });
+
+  input.addEventListener('keydown', function (e) {
+    if (list.hidden || !items.length) return;
+    if (e.key === 'ArrowDown') { active = Math.min(active + 1, items.length - 1); paint(); e.preventDefault(); }
+    else if (e.key === 'ArrowUp') { active = Math.max(active - 1, 0); paint(); e.preventDefault(); }
+    else if (e.key === 'Enter') { go(items[active >= 0 ? active : 0]); e.preventDefault(); }
+    else if (e.key === 'Escape') { close(); }
+  });
+  input.addEventListener('blur', function () { setTimeout(close, 150); });
+})();
+</script>
+</body>
+</html>

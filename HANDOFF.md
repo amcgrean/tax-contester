@@ -159,10 +159,14 @@ being blocked doesn't matter. The data changed three briefs:
 - No tax-rate data (`gross_taxes_due` empty), so no dollar-savings claims in
   copy
 
-**Move 5 — Implement SEO pages:**
-Flask routes + `web/templates/city.html` template. Each city brief
-has the full spec. Publish order: `/polk-county` first, then all
-Tier 1 city pages simultaneously.
+**Move 5 — DONE (2026-11-15):** Polk hub + 4 city pages live as server-rendered
+HTML: `/polk-county`, `/des-moines`, `/ankeny`, `/west-des-moines`, `/urbandale`,
+plus `/sitemap.xml` and `/robots.txt`. Code: `web/seo_pages.py` (content + stats),
+`web/templates/city.html`, `web/static/seo.css`. The address search on each page
+deep-links into the app via `/?parcel=<id>#parcel`. Waukee is skipped (0 parcels).
+Next: submit the sitemap in Google Search Console (Aaron, needs site ownership),
+then build Tier 2 cities (Johnston, Altoona, Grimes, Pleasant Hill, Clive) by
+adding entries to `STATS`/`CITIES`.
 
 **Move 6 (separate PR):** Scaffold Phase 2 skills — `mkt-lifecycle-email`
 (April seasonal sequences) and `mkt-ads-copy` (Google/Meta).

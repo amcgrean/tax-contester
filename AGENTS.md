@@ -171,6 +171,8 @@ result = ce.run_comps(address="5604 Maish Ave")
 | GET | `/api/comps/<parcel_id>` | Run comp engine, return verdict + comp table (includes `latitude`/`longitude` on each row) |
 | GET | `/api/admin` | Stats, data source status, ingestion run log |
 | GET | `/api/packet/<parcel_id>` | 2-page print-optimized HTML packet (auto-triggers browser print dialog) |
+| GET | `/polk-county`, `/des-moines`, `/ankeny`, `/west-des-moines`, `/urbandale` | Server-rendered SEO pages (`web/seo_pages.py` + `templates/city.html`). Stats are hardcoded from `marketing/seo/_DATA_2026.md`, so refresh them each March |
+| GET | `/sitemap.xml`, `/robots.txt` | Generated from `seo_pages.sitemap_urls()` |
 
 All routes except `/api/packet/` return JSON. `to_float()` helper converts psycopg2 `Decimal` → `float` everywhere before arithmetic.
 
@@ -192,6 +194,7 @@ All routes except `/api/packet/` return JSON. `to_float()` helper converts psyco
 - Autocomplete: 180ms debounce, keyboard nav (↑↓ Enter Esc), `selectSuggestion()` → `__goto('parcel')`
 - Comps screen: after `host.innerHTML` is set, `_initLeafletMap(rows)` is called to initialize the Leaflet map; requires Leaflet 1.9.4 (loaded via CDN in `index.html`)
 - Search screen: protest deadline countdown banner rendered immediately via IIFE after `host.innerHTML`
+- Deep link: `/?parcel=<county_parcel_id>#parcel` opens that parcel (used by the SEO city pages' address search)
 - Packet screen (`renderPacket`): renders in-app draft from cached `compsData`/`parcelData`; the "Download PDF" button opens `/api/packet/<id>` in a new tab
 
 **index.html** — SPA shell:

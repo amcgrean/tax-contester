@@ -10,12 +10,16 @@ from decimal import Decimal
 from datetime import datetime, date
 from pathlib import Path
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, Response, jsonify, render_template, request
 
 # Make comp_engine importable from the parent taxes directory
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import comp_engine as ce
+
+# web/ itself, so seo_pages resolves both locally and on Vercel
+sys.path.insert(0, str(Path(__file__).parent))
+import seo_pages
 import psycopg2
 import psycopg2.extras
 
@@ -112,6 +116,41 @@ def pct_change(new, old):
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+# ─────────────────────────────────────────────────────────────────
+# SEO pages: server-rendered county hub + city pages (see web/seo_pages.py)
+# ─────────────────────────────────────────────────────────────────
+
+@app.route("/polk-county")
+def seo_polk_county():
+    return render_template("city.html", **seo_pages.county_context())
+
+
+def _make_city_view(slug):
+    def view():
+        return render_template("city.html", **seo_pages.city_context(slug))
+    view.__name__ = "seo_city_" + slug.replace("-", "_")
+    return view
+
+
+# Explicit routes per city (not /<slug>) so nothing can shadow /api or /static
+for _slug in seo_pages.CITY_ORDER:
+    app.add_url_rule("/" + _slug, view_func=_make_city_view(_slug))
+
+
+@app.route("/sitemap.xml")
+def sitemap():
+    urls = "".join(f"<url><loc>{u}</loc></url>" for u in seo_pages.sitemap_urls())
+    xml = ('<?xml version="1.0" encoding="UTF-8"?>'
+           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + urls + "</urlset>")
+    return Response(xml, mimetype="application/xml")
+
+
+@app.route("/robots.txt")
+def robots():
+    body = f"User-agent: *\nAllow: /\nDisallow: /api/\nSitemap: {seo_pages.SITE}/sitemap.xml\n"
+    return Response(body, mimetype="text/plain")
 
 
 # ─────────────────────────────────────────────────────────────────
