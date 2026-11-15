@@ -364,6 +364,8 @@ main {
   display: inline-flex; align-items: center; gap: 6px;
 }
 .search-box .go:hover { background: var(--accent-2); }
+.search-box.no-county { grid-template-columns: 1fr auto; }
+.search-hero .trust-strip { margin: 12px 0 0; font-size: 12.5px; color: var(--ink-3); }
 .search-suggest {
   margin-top: 14px;
   display: flex; flex-wrap: wrap; gap: 6px;
@@ -1130,7 +1132,8 @@ body.mobile-preview .screen[data-screen="comps"] .conclusion {
   .search-hero { padding: 24px 18px 22px; }
   .search-hero h1 { font-size: 26px; }
   .search-hero .lede { font-size: 14px; }
-  .search-box {
+  .search-box,
+  .search-box.no-county {
     grid-template-columns: 1fr;
   }
   .search-box select {

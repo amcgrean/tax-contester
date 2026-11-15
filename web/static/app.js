@@ -32,6 +32,12 @@
   tabs.forEach(t => t.addEventListener('click', () => goto(t.dataset.tab)));
 
   // initial
+  // Deep link from the SEO city pages: /?parcel=<county_parcel_id>#parcel
+  const deepParcel = new URLSearchParams(location.search).get('parcel');
+  if (deepParcel && window.__state) {
+    Object.assign(window.__state, { currentParcelId: deepParcel, parcelData: null, compsData: null });
+    if (!location.hash) history.replaceState(null, '', '#parcel');
+  }
   const initial = (location.hash || '#search').slice(1);
   goto(['search','parcel','comps','admin','packet'].includes(initial) ? initial : 'search', false);
 

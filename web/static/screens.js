@@ -52,22 +52,29 @@ async function apiFetch(url) {
    1. SEARCH
 ═══════════════════════════════════════════════ */
 
+/* Kicker above the homepage headline: tracks the Apr 2–30 protest window. */
+function _protestKicker(today = new Date()) {
+  const y = today.getFullYear();
+  const start = new Date(y, 3, 2), end = new Date(y, 3, 30, 23, 59, 59);
+  if (today >= start && today <= end) return `Protest window open · file by April 30, ${y}`;
+  const next = today > end ? y + 1 : y;
+  return `Next protest window · April 2–30, ${next}`;
+}
+
 function renderSearch(host) {
   host.innerHTML = `
     <section class="search-hero">
-      <div class="kicker">Step 1 / 5 · Find a property</div>
-      <h1>Look up a parcel <em>in Polk or Dallas County</em>, then build a comp set in under a minute.</h1>
-      <p class="lede">Enter an address or parcel ID. We'll pull the latest assessment from the county's CAMA system and propose comparable sales within 0.75 mi.</p>
+      <div class="kicker">${_protestKicker()}</div>
+      <h1>Is your <em>Polk County</em> assessment too high?</h1>
+      <p class="lede">Check it against 381,000 real Polk County sales. Free comp evidence, ready to file by April 30.</p>
 
-      <form class="search-box" id="search-form" onsubmit="return false;" style="position:relative">
-        <select id="county-select" aria-label="County">
-          <option value="both">Both counties</option>
-          <option value="polk">Polk County</option>
-          <option value="dallas">Dallas County</option>
-        </select>
+      <form class="search-box no-county" id="search-form" onsubmit="return false;" style="position:relative">
+        <!-- Polk only until Dallas data loads; restore the county <select> then -->
+        <input type="hidden" id="county-select" value="polk" />
         <div style="position:relative;flex:1;display:flex">
           <input id="search-input" type="text"
-                 placeholder="e.g. 4823 Grand Ave, Des Moines  ·  or  ·  010-12345-678-000"
+                 placeholder="Your address, e.g. 4823 Grand Ave"
+                 aria-label="Your address"
                  autocomplete="off" style="flex:1" />
           <ul id="ac-dropdown" role="listbox" style="
             display:none; position:absolute; top:100%; left:0; right:0; z-index:200;
@@ -77,16 +84,10 @@ function renderSearch(host) {
             overflow-y:auto; font-size:13px;
           "></ul>
         </div>
-        <button type="submit" class="go" id="search-btn">${ICONS.search} Search</button>
+        <button type="submit" class="go" id="search-btn">Check my assessment →</button>
       </form>
 
-      <div class="search-suggest">
-        <b>Try:</b>
-        <button type="button" class="suggest-chip" data-query="4823 Grand Ave">4823 Grand Ave</button>
-        <button type="button" class="suggest-chip" data-query="2210 Park Ave">2210 Park Ave</button>
-        <button type="button" class="suggest-chip" data-query="808 42nd St">808 42nd St</button>
-        <button type="button" class="suggest-chip" data-query="3401 Ingersoll">3401 Ingersoll</button>
-      </div>
+      <p class="trust-strip">173,000 Polk parcels · 381,000 recorded sales · Iowa Code §441.37 · Free</p>
     </section>
 
     <div id="deadline-banner"></div>

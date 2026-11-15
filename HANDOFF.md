@@ -136,15 +136,13 @@ Four files changed, zero DB migrations needed.
 - Decide: hide the Admin tab from public nav?
 - Packet screenshot: use live `/api/packet/01004795950043` or sanitize?
 
-**Move 3 — IMPLEMENT the homepage changes:**
-All edits are spec'd in `marketing/landing/homepage.md` (implementation checklist).
-Key changes in `web/static/screens.js` `renderSearch()`:
-- H1: "Is your Polk County assessment too high?"
-- Lede: "Check it against 381,000 real Polk & Dallas County sales..."
-- CTA: "Check my assessment" (not "Search")
-- Trust strip below CTA: "173,000 parcels · 381,000 sales · Iowa Code §441.37 · Free"
-And in `web/templates/index.html`: update `<title>`, `<meta description>`,
-`.brand-title`, `.brand-sub`.
+**Move 3 — DONE (2026-11-15):** Aaron picked Variant A. Shipped in
+`web/static/screens.js` (`renderSearch`, `_protestKicker`), `web/templates/index.html`
+and `web/static/styles.css`. Headline "Is your Polk County assessment too high?",
+CTA "Check my assessment", trust strip, name changed to "Tax Contester", Polk-only
+search (county picker replaced by a hidden `polk` field; restore the `<select>` when
+Dallas loads), Admin tab hidden (still at `/#admin`), footer links to `/polk-county`.
+Variant C ("The firms take 30%") is saved for a future ad landing page.
 
 **Move 4 — DONE (2026-11-15):** SEO data hooks filled from Neon. Numbers are in
 `marketing/seo/_DATA_2026.md`. **Agents can query Neon over HTTPS** (POST to
@@ -159,10 +157,14 @@ being blocked doesn't matter. The data changed three briefs:
 - No tax-rate data (`gross_taxes_due` empty), so no dollar-savings claims in
   copy
 
-**Move 5 — Implement SEO pages:**
-Flask routes + `web/templates/city.html` template. Each city brief
-has the full spec. Publish order: `/polk-county` first, then all
-Tier 1 city pages simultaneously.
+**Move 5 — DONE (2026-11-15):** Polk hub + 4 city pages live as server-rendered
+HTML: `/polk-county`, `/des-moines`, `/ankeny`, `/west-des-moines`, `/urbandale`,
+plus `/sitemap.xml` and `/robots.txt`. Code: `web/seo_pages.py` (content + stats),
+`web/templates/city.html`, `web/static/seo.css`. The address search on each page
+deep-links into the app via `/?parcel=<id>#parcel`. Waukee is skipped (0 parcels).
+Next: submit the sitemap in Google Search Console (Aaron, needs site ownership),
+then build Tier 2 cities (Johnston, Altoona, Grimes, Pleasant Hill, Clive) by
+adding entries to `STATS`/`CITIES`.
 
 **Move 6 (separate PR):** Scaffold Phase 2 skills — `mkt-lifecycle-email`
 (April seasonal sequences) and `mkt-ads-copy` (Google/Meta).
