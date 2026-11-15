@@ -136,15 +136,13 @@ Four files changed, zero DB migrations needed.
 - Decide: hide the Admin tab from public nav?
 - Packet screenshot: use live `/api/packet/01004795950043` or sanitize?
 
-**Move 3 — IMPLEMENT the homepage changes:**
-All edits are spec'd in `marketing/landing/homepage.md` (implementation checklist).
-Key changes in `web/static/screens.js` `renderSearch()`:
-- H1: "Is your Polk County assessment too high?"
-- Lede: "Check it against 381,000 real Polk & Dallas County sales..."
-- CTA: "Check my assessment" (not "Search")
-- Trust strip below CTA: "173,000 parcels · 381,000 sales · Iowa Code §441.37 · Free"
-And in `web/templates/index.html`: update `<title>`, `<meta description>`,
-`.brand-title`, `.brand-sub`.
+**Move 3 — DONE (2026-11-15):** Aaron picked Variant A. Shipped in
+`web/static/screens.js` (`renderSearch`, `_protestKicker`), `web/templates/index.html`
+and `web/static/styles.css`. Headline "Is your Polk County assessment too high?",
+CTA "Check my assessment", trust strip, name changed to "Tax Contester", Polk-only
+search (county picker replaced by a hidden `polk` field; restore the `<select>` when
+Dallas loads), Admin tab hidden (still at `/#admin`), footer links to `/polk-county`.
+Variant C ("The firms take 30%") is saved for a future ad landing page.
 
 **Move 4 — DONE (2026-11-15):** SEO data hooks filled from Neon. Numbers are in
 `marketing/seo/_DATA_2026.md`. **Agents can query Neon over HTTPS** (POST to

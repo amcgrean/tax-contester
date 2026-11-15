@@ -6,6 +6,9 @@ _Target files: `web/templates/index.html`, `web/static/screens.js`_
 
 ---
 
+> **Decision 2026-11-15:** Variant A shipped (Aaron's pick). Variant C kept for a
+> future paid-ad landing page. The Admin tab is hidden and the name is now "Tax Contester".
+
 ## Goals
 
 - **Primary action:** Enter address → trigger parcel lookup (activation)
